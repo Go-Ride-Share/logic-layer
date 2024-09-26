@@ -8,7 +8,7 @@ namespace GoRideShare
         public string PasswordHash { get; set; } = passwordHash;
     }
 
-    public class RegistrationUserInfo(string email, string passwordHash, string name,
+    public class UserRegistrationInfo(string email, string passwordHash, string name,
                     string bio, string preferences, string phoneNumber, string photo)
     {
         public string Email { get; set; } = email;
