@@ -11,13 +11,14 @@ namespace GoRideShare
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private readonly ILogger<VerifyLoginCredentials> _logger = logger;
+        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         private readonly JwtTokenHandler _jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("JWT_SECRET_KEY"), "GoRideShare", "GoRideShareAPI");
 
         [Function("VerifyLoginCredentials")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var userData = JsonSerializer.Deserialize<UserRegistrationInfo>(requestBody);
+            var userData = JsonSerializer.Deserialize<LoginCredentials>(requestBody);
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
             if (userData == null || string.IsNullOrEmpty(userData.Email))
@@ -25,17 +26,17 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Invalid user data.");
             }
 
-            // var dbLayerResponse = await _httpClient.PostAsync("http://localhost:7071/api/VerifyLoginCredentials",
-            var dbLayerResponse = await _httpClient.PostAsync("https://test-dp-func-db.azurewebsites.net/api/VerifyLoginCredentials",
+            var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/VerifyLoginCredentials",
                 new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json"));
 
             if (dbLayerResponse.IsSuccessStatusCode)
             {
-                // Generate JWT Token
                 var token = _jwtTokenHandler.GenerateToken(userData.Email);
-
-                // return response;
-                return new OkObjectResult(new {Token = token});
+                if(token != "")
+                {
+                    return new OkObjectResult(new {Token = token});
+                }
+                return new ContentResult{StatusCode = StatusCodes.Status500InternalServerError}; 
             }
             else
             {
@@ -44,19 +45,5 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Error! Incorrect email or password.");
             }
         }
-
-        // public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
-        // {
-        //     LoginCredentials loginCredentials = new("some email", "cc3f4fd9608d575655ed31844b2349cf37be8ec5e4b0ec8ba9994fbc6653666f");
-        //     string json = JsonSerializer.Serialize<LoginCredentials>(loginCredentials);
-
-        //     _logger.LogInformation("C# HTTP trigger function processed a request.");
-        //     return new ContentResult
-        //     {
-        //         Content = json,
-        //         ContentType = "application/json",
-        //         StatusCode = StatusCodes.Status200OK
-        //     };
-        // }
     }
 }

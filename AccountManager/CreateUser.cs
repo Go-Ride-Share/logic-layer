@@ -11,6 +11,7 @@ namespace GoRideShare
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private readonly ILogger<CreateAccount> _logger = logger;
+        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         private readonly JwtTokenHandler _jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("JWT_SECRET_KEY"), "GoRideShare", "GoRideShareAPI");
 
         [Function("CreateUser")]
@@ -25,17 +26,18 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Invalid user data.");
             }
 
-            // var dbLayerResponse = await _httpClient.PostAsync("http://localhost:7071/api/CreateUser",
-            var dbLayerResponse = await _httpClient.PostAsync("https://test-dp-func-db.azurewebsites.net/api/CreateUser",
+            var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/CreateUser",
                 new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json"));
 
             if (dbLayerResponse.IsSuccessStatusCode)
             {
-                // Generate JWT Token
                 var token = _jwtTokenHandler.GenerateToken(userData.Email);
-
-                // return response;
-                return new OkObjectResult(new {Token = token});
+                
+                if(token != "")
+                {
+                    return new OkObjectResult(new {Token = token});
+                }
+                return new ContentResult{StatusCode = StatusCodes.Status500InternalServerError}; 
             }
             else
             {
