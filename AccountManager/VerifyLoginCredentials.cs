@@ -24,7 +24,7 @@ namespace GoRideShare
             // Read the request body to get the user's login data (email and password hash)
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var userData = JsonSerializer.Deserialize<LoginCredentials>(requestBody);
-            
+
             _logger.LogInformation($"Raw Request Body: {requestBody}");
 
             // Validate if the email and password hash are provided
@@ -44,13 +44,16 @@ namespace GoRideShare
                 var token = _jwtTokenHandler.GenerateToken(userData.Email);
 
                 // If token generation is successful, return it in the response
-                if(token != "")
+                if (token != "")
                 {
-                    return new OkObjectResult(new {Token = token});
+                    return new OkObjectResult(new { Token = token })
+                    {
+                        ContentTypes = { "application/json" }
+                    };
                 }
 
                 // If token generation fails, return 500 Internal Server Error
-                return new ContentResult{StatusCode = StatusCodes.Status500InternalServerError}; 
+                return new ContentResult { StatusCode = StatusCodes.Status500InternalServerError };
             }
             else
             {

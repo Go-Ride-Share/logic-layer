@@ -26,7 +26,7 @@ namespace GoRideShare
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
             // Validate if essential user data is present
-            if (userData == null || string.IsNullOrEmpty(userData.Email) || 
+            if (userData == null || string.IsNullOrEmpty(userData.Email) ||
             string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash)
             || string.IsNullOrEmpty(userData.PhoneNumber))
             {
@@ -42,15 +42,18 @@ namespace GoRideShare
             {
                 // Generate a JWT token for the user after successful account creation
                 var token = _jwtTokenHandler.GenerateToken(userData.Email);
-                
+
                 // If token generation is successful, return the token in the response
-                if(token != "")
+                if (token != "")
                 {
-                    return new OkObjectResult(new {Token = token});
+                    return new OkObjectResult(new { Token = token })
+                    {
+                        ContentTypes = { "application/json" }
+                    };
                 }
 
                 // If token generation fails, return 500 Internal Server Error
-                return new ContentResult{StatusCode = StatusCodes.Status500InternalServerError}; 
+                return new ContentResult { StatusCode = StatusCodes.Status500InternalServerError };
             }
             else
             {
