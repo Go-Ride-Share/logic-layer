@@ -21,9 +21,9 @@ namespace GoRideShare
             var userData = JsonSerializer.Deserialize<LoginCredentials>(requestBody);
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
-            if (userData == null || string.IsNullOrEmpty(userData.Email))
+            if (userData == null || string.IsNullOrEmpty(userData.Email) || string.IsNullOrEmpty(userData.PasswordHash))
             {
-                return new BadRequestObjectResult("Invalid user data.");
+                return new BadRequestObjectResult("Incomplete user data.");
             }
 
             var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/VerifyLoginCredentials",
@@ -41,8 +41,8 @@ namespace GoRideShare
             else
             {
                 var errorMessage = await dbLayerResponse.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to create account: " + errorMessage);
-                return new BadRequestObjectResult("Error! Incorrect email or password.");
+                _logger.LogError("Failed to login into the account: " + errorMessage);
+                return new BadRequestObjectResult("Failed to login into the account: " + errorMessage);
             }
         }
     }

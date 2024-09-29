@@ -21,9 +21,11 @@ namespace GoRideShare
             var userData = JsonSerializer.Deserialize<UserRegistrationInfo>(requestBody);
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
-            if (userData == null || string.IsNullOrEmpty(userData.Email))
+            if (userData == null || string.IsNullOrEmpty(userData.Email) || 
+            string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash)
+            || string.IsNullOrEmpty(userData.PhoneNumber))
             {
-                return new BadRequestObjectResult("Invalid user data.");
+                return new BadRequestObjectResult("Incomplete user data.");
             }
 
             var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/CreateUser",
@@ -43,7 +45,7 @@ namespace GoRideShare
             {
                 var errorMessage = await dbLayerResponse.Content.ReadAsStringAsync();
                 _logger.LogError("Failed to create account: " + errorMessage);
-                return new BadRequestObjectResult("Error creating user account.");
+                return new BadRequestObjectResult("Failed to create account: " + errorMessage);
             }
         }
     }
