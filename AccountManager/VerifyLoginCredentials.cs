@@ -46,10 +46,20 @@ namespace GoRideShare
                                                             Environment.GetEnvironmentVariable("OAUTH_TENANT_ID"),
                                                             Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
 
-                    // Generate the OAuth 2.0 token
-                    string token = await jwtTokenHandler.GenerateTokenAsync();
-                        
-                    return new OkObjectResult(new { Token = token });
+                    // Generate the OAuth 2.0 token for logic_layer
+                    string logic_token = await jwtTokenHandler.GenerateTokenAsync();
+
+                    // Initialize JwtTokenHandler and validate environment variables
+                    jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
+
+                    // Generate the OAuth 2.0 token for db_layer
+                    string db_token = await jwtTokenHandler.GenerateTokenAsync();
+
+                    // Return both OAuth 2.0 tokens to the client
+                    return new OkObjectResult(new { Logic_token = logic_token, Db_token = db_token });
                 }
                 catch (Exception ex)
                 {

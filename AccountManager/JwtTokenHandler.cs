@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 public class JwtTokenHandler
 {
@@ -63,8 +64,11 @@ public class JwtTokenHandler
     // Class to hold token response
     private class TokenResponse
     {
+        [JsonPropertyName("token_type")]
         public string? TokenType { get; set; }
+        [JsonPropertyName("access_token")]
         public string? AccessToken { get; set; }
+        [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; set; }
     }
 }
