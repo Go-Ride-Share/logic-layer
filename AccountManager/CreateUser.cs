@@ -13,8 +13,6 @@ namespace GoRideShare
         private readonly ILogger<CreateAccount> _logger = logger;
         // Base URL for the API (retrieved from environment variables)
         private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
-        // JWT Token handler for generating tokens upon successful account creation
-        private readonly JwtTokenHandler _jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("JWT_SECRET_KEY"), "GoRideShare", "GoRideShareAPI");
 
         // This function is triggered by an HTTP POST request to create a new user
         [Function("CreateUser")]
@@ -40,20 +38,24 @@ namespace GoRideShare
             // Check if the backend API response indicates success
             if (dbLayerResponse.IsSuccessStatusCode)
             {
-                // Generate a JWT token for the user after successful account creation
-                var token = _jwtTokenHandler.GenerateToken(userData.Email);
-
-                // If token generation is successful, return the token in the response
-                if (token != "")
+                try
                 {
-                    return new OkObjectResult(new { Token = token })
-                    {
-                        ContentTypes = { "application/json" }
-                    };
-                }
+                    // Initialize JwtTokenHandler and validate environment variables
+                    var jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_TENANT_ID"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
 
-                // If token generation fails, return 500 Internal Server Error
-                return new ContentResult { StatusCode = StatusCodes.Status500InternalServerError };
+                    // Generate the OAuth 2.0 token
+                    string token = await jwtTokenHandler.GenerateTokenAsync();
+                        
+                    return new OkObjectResult(new { Token = token });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"An error occurred while processing the request: {ex.Message}");
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
             else
             {
