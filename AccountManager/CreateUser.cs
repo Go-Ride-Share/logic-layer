@@ -31,9 +31,30 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Incomplete user data.");
             }
 
+            // Initialize JwtTokenHandler and validate environment variables
+            var jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
+                                                    Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
+                                                    Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
+                                                    Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
+
+            // Generate the OAuth 2.0 token for db_layer
+            string db_token = await jwtTokenHandler.GenerateTokenAsync();
+
             // Call the backend API to insert the user data into the database
-            var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/CreateUser",
-                new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json"));
+            // var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/CreateUser",
+            //     new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json"));
+
+            // Create the HttpRequestMessage and add the db_token to the Authorization header
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
+            };
+
+            // Add the db_token to the Authorization header
+            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", db_token);
+
+            // Call the backend API to verify the login credentials
+            var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
             // Check if the backend API response indicates success
             if (dbLayerResponse.IsSuccessStatusCode)
@@ -41,22 +62,13 @@ namespace GoRideShare
                 try
                 {
                     // Initialize JwtTokenHandler and validate environment variables for logic_layer
-                    var jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
+                    jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
                                                             Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET"),
                                                             Environment.GetEnvironmentVariable("OAUTH_TENANT_ID"),
                                                             Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
 
                     // Generate the OAuth 2.0 token for logic_layer
                     string logic_token = await jwtTokenHandler.GenerateTokenAsync();
-
-                    // Initialize JwtTokenHandler and validate environment variables
-                    jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
-                                                            Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
-                                                            Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
-                                                            Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
-
-                    // Generate the OAuth 2.0 token for db_layer
-                    string db_token = await jwtTokenHandler.GenerateTokenAsync();
                     
                     // Return both OAuth 2.0 tokens to the client
                     return new OkObjectResult(new { Logic_token = logic_token, Db_token = db_token });
