@@ -40,10 +40,6 @@ namespace GoRideShare
             // Generate the OAuth 2.0 token for db_layer
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
-            // Call the backend API to insert the user data into the database
-            // var dbLayerResponse = await _httpClient.PostAsync($"{_baseApiUrl}/api/CreateUser",
-            //     new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json"));
-
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
             {
