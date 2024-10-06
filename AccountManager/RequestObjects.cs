@@ -33,4 +33,10 @@ namespace GoRideShare
         public string Photo { get; set; } = photo;
     }
 
+    public class DbLayerResponse
+    {
+        [JsonPropertyName("user_id")]
+        public string? UserId { get; set; }
+    }
+
 }

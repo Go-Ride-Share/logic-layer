@@ -57,6 +57,17 @@ namespace GoRideShare
             {
                 try
                 {
+                    // Extract the response content and deserialize it to get the user_id
+                    var dbResponseContent = await dbLayerResponse.Content.ReadAsStringAsync();
+                    var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(dbResponseContent);
+
+                    string? userId = dbResponseData?.UserId;
+                    if (string.IsNullOrEmpty(userId))
+                    {
+                        _logger.LogError("User ID not found in the response from the DB layer.");
+                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    }
+
                     // Initialize JwtTokenHandler and validate environment variables for logic_layer
                     jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
                                                             Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET"),
@@ -65,9 +76,14 @@ namespace GoRideShare
 
                     // Generate the OAuth 2.0 token for logic_layer
                     string logic_token = await jwtTokenHandler.GenerateTokenAsync();
-                    
-                    // Return both OAuth 2.0 tokens to the client
-                    return new OkObjectResult(new { Logic_token = logic_token, Db_token = db_token });
+
+                    // Return both OAuth 2.0 tokens and the user_id to the client
+                    return new OkObjectResult(new
+                    {
+                        User_id = userId,
+                        Logic_token = logic_token,
+                        Db_token = db_token
+                    });
                 }
                 catch (Exception ex)
                 {
