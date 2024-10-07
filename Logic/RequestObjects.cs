@@ -15,31 +15,31 @@ namespace GoRideShare
         public string PostId { get; set; }
         
         [JsonPropertyName("posterId")]
-        public string PosterId { get; set; }
+        public required string PosterId { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
         [JsonPropertyName("originLat")]
-        public float OriginLat { get; set; }
+        public required float OriginLat { get; set; }
 
         [JsonPropertyName("originLng")]
-        public float OriginLng { get; set; }
+        public required float OriginLng { get; set; }
 
         [JsonPropertyName("destinationLat")]
-        public float DestinationLat { get; set; }
+        public required float DestinationLat { get; set; }
 
         [JsonPropertyName("destinationLng")]
-        public float DestinationLng { get; set; }
+        public required float DestinationLng { get; set; }
 
         [JsonPropertyName("price")]
-        public float Price { get; set; }
+        public required float Price { get; set; }
 
         [JsonPropertyName("seatsAvailable")]
-        public int SeatsAvailable { get; set; }
+        public required int SeatsAvailable { get; set; }
 
         public PostDetails() { }
 

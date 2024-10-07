@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace GoRideShare
 {
-    public class CreatePost(ILogger<CreatePost> logger)
+    public class SavePost(ILogger<SavePost> logger)
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private readonly ILogger<CreatePost> _logger = logger;
+        private readonly ILogger<SavePost> _logger = logger;
         private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
 
         // This function is triggered by an HTTP POST request to create a new post
-        [Function("CreatePost")]
+        [Function("SavePost")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             // Read the request body to get the user's registration information
@@ -35,7 +35,13 @@ namespace GoRideShare
             }
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreatePost")
+            var endpoint = $"{_baseApiUrl}/api/UpdatePost";
+            if ( string.IsNullOrEmpty(newPost.PostId) ) 
+            {   // Create the post if there is no ID
+                endpoint = $"{_baseApiUrl}/api/CreatePost";
+            }
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
             {
                 Content = new StringContent(JsonSerializer.Serialize(newPost), Encoding.UTF8, "application/json")
             };
