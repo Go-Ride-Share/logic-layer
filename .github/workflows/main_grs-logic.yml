@@ -1,18 +1,18 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy AccountManager
+name: Build and deploy dotnet core app to Azure Function App - GRS-Logic
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'AccountManager/**'
+      - "Logic/**"
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'AccountManager/' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Logic/' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '8.0.x' # set this to the dotnet version to use
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.LOGIC_WORKFLOW_TOKEN }}
-
+          
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
         with:
@@ -42,15 +42,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5FB8DB043CE14F3CB19DE017B2BFDDE4 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_670F6FE68B7C4C4798A93BC1A579A800 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_541CB883D52849DEA296C8609C4FE10C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A45BF9A30A55471DAD822275C1D1129C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B833657BD24A4B4BA9722417FD94CE59 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A39293702066417B9F274211926E648E }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: 'GRS-AccountManager'
+          app-name: 'GRS-Logic'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
           
