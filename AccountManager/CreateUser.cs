@@ -83,7 +83,7 @@ namespace GoRideShare
                         User_id = userId,
                         Logic_token = logic_token,
                         Db_token = db_token,
-                        userData.Photo
+                        Photo = userData.Photo ?? null
                     });
                 }
                 catch (Exception ex)
