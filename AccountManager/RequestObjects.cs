@@ -37,6 +37,8 @@ namespace GoRideShare
     {
         [JsonPropertyName("user_id")]
         public string? UserId { get; set; }
+        [JsonPropertyName("photo")]
+        public string? Photo {get; set;}
     }
 
 }

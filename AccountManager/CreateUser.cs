@@ -77,12 +77,13 @@ namespace GoRideShare
                     // Generate the OAuth 2.0 token for logic_layer
                     string logic_token = await jwtTokenHandler.GenerateTokenAsync();
 
-                    // Return both OAuth 2.0 tokens and the user_id to the client
+                    // Return both OAuth 2.0 tokens, the user_id, and the photo to the client
                     return new OkObjectResult(new
                     {
                         User_id = userId,
                         Logic_token = logic_token,
-                        Db_token = db_token
+                        Db_token = db_token,
+                        userData.Photo
                     });
                 }
                 catch (Exception ex)
