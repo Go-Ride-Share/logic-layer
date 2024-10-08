@@ -44,11 +44,23 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_00DC977E8CFA41E5ADD0945BC6341677 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E75796602ECE436A8EB917C91DC2E323 }}
 
+      - name: Retrieve publish profile for deployment
+        id: publishProfileRetrieval
+        run: |
+          publishProfiles=$(az webapp deployment list-publishing-profiles \
+            --name "grs-accountmanager" \
+            --resource-group "GoRideShare" \
+            --subscription "b7f73b0a-7aae-48b6-8276-c164802f2598" --xml)
+          echo "::add-mask::$publishProfiles"
+          echo "::set-output name=publishProfiles::$publishProfiles"
+
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: 'grs-accountmanager'
           slot-name: 'dev'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output' 
+          publish-profile: ${{ steps.publishProfileRetrieval.outputs.publishProfiles }}
+
           
