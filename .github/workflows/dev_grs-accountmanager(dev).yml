@@ -37,13 +37,6 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_46B47ABF2A5F4F058C1C74A19A1287E7 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_00DC977E8CFA41E5ADD0945BC6341677 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E75796602ECE436A8EB917C91DC2E323 }}
-
       - name: Retrieve publish profile for deployment
         id: publishProfileRetrieval
         run: |
@@ -60,7 +53,4 @@ jobs:
         with:
           app-name: 'grs-accountmanager'
           slot-name: 'dev'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output' 
-          publish-profile: ${{ steps.publishProfileRetrieval.outputs.publishProfiles }}
-
-          
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'         
