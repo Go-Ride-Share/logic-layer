@@ -6,7 +6,7 @@ name: 2 Build and deploy AccountManager
 on:
   push:
     branches:
-      - main
+      - dev
     paths:
       - 'AccountManager/**'
   workflow_dispatch:
