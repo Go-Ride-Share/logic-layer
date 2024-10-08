@@ -20,52 +20,60 @@ namespace GoRideShare
         {
             // Read the request body to get the user's registration information
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var userData = JsonSerializer.Deserialize<UserRegistrationInfo>(requestBody);
-            _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
+            _logger.LogInformation($"Raw Request Body: {requestBody}");
+
+            UserRegistrationInfo? userData = null;
+            try 
+            {
+                userData = JsonSerializer.Deserialize<UserRegistrationInfo>(requestBody);
+            }
+            catch (JsonException e)
+            {
+                _logger.LogError(e.Message);
+                return new BadRequestObjectResult("There is a porblem in your request.");
+            }
 
             // Validate if essential user data is present
             if (userData == null || string.IsNullOrEmpty(userData.Email) ||
             string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash)
             || string.IsNullOrEmpty(userData.PhoneNumber))
             {
+                _logger.LogError("Incomplete user data.");
                 return new BadRequestObjectResult("Incomplete user data.");
             }
 
-            // Initialize JwtTokenHandler and validate environment variables
+            // Generate the OAuth 2.0 token for db_layer
             var jwtTokenHandler = new JwtTokenHandler(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
                                                     Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
                                                     Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
                                                     Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
-
-            // Generate the OAuth 2.0 token for db_layer
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
+            // Send request to db
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };
-
-            // Add the db_token to the Authorization header
             requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", db_token);
-
-            // Call the backend API to verify the login credentials
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
-            // Check if the backend API response indicates success
+            // Check db response
             if (dbLayerResponse.IsSuccessStatusCode)
             {
                 try
                 {
                     // Extract the response content and deserialize it to get the user_id
-                    var dbResponseContent = await dbLayerResponse.Content.ReadAsStringAsync();
-                    var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(dbResponseContent);
+                    string dbResponseContent = await dbLayerResponse.Content.ReadAsStringAsync();
+                    DbLayerResponse? dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(dbResponseContent);
 
                     string? userId = dbResponseData?.UserId;
                     if (string.IsNullOrEmpty(userId))
                     {
-                        _logger.LogError("User ID not found in the response from the DB layer.");
-                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                        _logger.LogError("Failed to create account.");
+                        return new ObjectResult("Failed to create account.")
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError
+                        };                    
                     }
 
                     // Initialize JwtTokenHandler and validate environment variables for logic_layer
