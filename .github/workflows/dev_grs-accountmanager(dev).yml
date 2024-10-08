@@ -7,8 +7,6 @@ on:
   push:
     branches:
       - dev
-    paths:
-      - 'AccountManager/**'
   workflow_dispatch:
 
 env:
