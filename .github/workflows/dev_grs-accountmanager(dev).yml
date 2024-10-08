@@ -1,14 +1,12 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy dotnet core app to Azure Function App - grs-accountmanager
+name: Build and deploy dev AccountManager
 
 on:
   push:
     branches:
       - dev
-    paths:
-      - 'AccountManager/**'
   workflow_dispatch:
 
 env:
@@ -42,14 +40,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_32704ADE88754EE08FCD2A13034B2E8E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C1037092B3184947B68A9E6D9B89C993 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EDC14A5732E045A89AD50B28E59430FF }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_46B47ABF2A5F4F058C1C74A19A1287E7 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_00DC977E8CFA41E5ADD0945BC6341677 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E75796602ECE436A8EB917C91DC2E323 }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: 'Grs-AccountManager'
+          app-name: 'grs-accountmanager'
           slot-name: 'dev'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          
