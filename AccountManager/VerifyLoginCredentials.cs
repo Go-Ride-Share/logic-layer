@@ -67,7 +67,10 @@ namespace GoRideShare
                     if (string.IsNullOrEmpty(userId))
                     {
                         _logger.LogError("User ID not found in the response from the DB layer.");
-                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                        return new ObjectResult("Invalid login credentials.")
+                        {
+                            StatusCode = StatusCodes.Status401Unauthorized
+                        };
                     }
 
                     // Initialize JwtTokenHandler and validate environment variables
