@@ -43,3 +43,4 @@ jobs:
         with:
           app-name: 'grs-accountmanager'
           slot-name: 'dev'
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
