@@ -42,7 +42,7 @@ jobs:
         with:
           client-id: 16ca4dba-dac7-4752-8aa2-5d8e90549db7
           tenant-id: 43370caf-14f8-4849-9194-9595049c06e9
-          subscription-id: b7f73b0a-7aae-48b6-8276-c164802f2598
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_541CB883D52849DEA296C8609C4FE10C }}
           
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
