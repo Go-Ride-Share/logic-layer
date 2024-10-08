@@ -40,7 +40,7 @@ Response payload template:
 
 ## `Logic` Function App API Definition
 
-### /findrides/intercity
+### /FindRides/Intercity
 Request paylaod template:
 ```
 {
@@ -51,7 +51,7 @@ Request paylaod template:
 }
 ```
 
-### /findrides/intracity
+### /FindRides/Intracity
 Request payload template:
 ```
 {
