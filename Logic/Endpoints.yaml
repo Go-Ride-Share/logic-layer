@@ -109,15 +109,10 @@ components:
         error:
           type: string      
           default: "Incomplete post data" 
-
-
-
-
-
-
-
-
-
-
-
-
+    PostList:
+      type: object
+      properties:
+        post_id:
+          type: array
+          items:
+            type: object                      
