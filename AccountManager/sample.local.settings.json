@@ -3,6 +3,14 @@
   "Values": {
     "AzureWebJobsStorage": "",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "BASE_API_URL": ""
+    "BASE_API_URL": "",
+    "OAUTH_CLIENT_ID": "",
+    "OAUTH_CLIENT_ID_DB": "",
+    "OAUTH_CLIENT_SECRET": "",
+    "OAUTH_CLIENT_SECRET_DB": "",
+    "OAUTH_SCOPE": "",
+    "OAUTH_SCOPE_DB": "",
+    "OAUTH_TENANT_ID_DB": "",
+    "OAUTH_TENANT_ID": ""
   }
 }
