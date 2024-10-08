@@ -18,6 +18,17 @@ namespace GoRideShare
         [Function("GetUser")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
+            // Check if all the env vars exist
+            if(! Utilities.AllEnvVarsExist())
+            {
+                string msg = "Not all env vars exist.";
+                _logger.LogError(msg);
+                return new ObjectResult(msg)
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+
             // Read the user ID and the db token from the headers
             if (!req.Headers.TryGetValue("X-User-ID", out var userId) || !req.Headers.TryGetValue("X-Db-Token", out var db_token))
             {

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
@@ -18,24 +17,35 @@ namespace GoRideShare
         [Function("GetPosts")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            
+            // Check if all the env vars exist
+            if(! Utilities.AllEnvVarsExist())
+            {
+                string msg = "Not all env vars exist.";
+                _logger.LogError(msg);
+                return new ObjectResult(msg)
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+
             // Read the user ID and the db token from the headers
             if (!req.Headers.TryGetValue("X-User-ID", out var userId) || !req.Headers.TryGetValue("X-Db-Token", out var db_token))
             {
                 return new BadRequestObjectResult("Missing User-ID or Db-token header.");
             }
 
-            string posterId = req.Query["userId"];
+            string? posterId = req.Query["userId"];
             if (string.IsNullOrEmpty(posterId)) {
                 return new BadRequestObjectResult("Missing Poster-ID");
             } 
             
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{_baseApiUrl}/api/GetPosts?userId={posterId}"){};
+            string fullUrl = $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, fullUrl){};
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
             requestMessage.Headers.Add("X-User-ID", userId.ToString());
 
-            _logger.LogInformation($"{_baseApiUrl}/api/GetPosts?userId={posterId}");
+            _logger.LogInformation("Sending request to " + fullUrl);
 
             // Call the backend API to verify the login credentials
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
