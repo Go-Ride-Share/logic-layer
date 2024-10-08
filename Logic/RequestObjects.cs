@@ -15,13 +15,16 @@ namespace GoRideShare
         public string PostId { get; set; }
         
         [JsonPropertyName("posterId")]
-        public required string PosterId { get; set; }
+        public string PosterId { get; set; }
 
         [JsonPropertyName("name")]
         public required string Name { get; set; }
 
         [JsonPropertyName("description")]
         public required string Description { get; set; }
+
+        [JsonPropertyName("departureDate")]
+        public required string DepartureDate { get; set; }
 
         [JsonPropertyName("originLat")]
         public required float OriginLat { get; set; }
@@ -48,6 +51,7 @@ namespace GoRideShare
             string posterId,
             string name,
             string description,
+            string departureDate,
             float originLat,
             float originLng,
             float destinationLat,
@@ -59,6 +63,7 @@ namespace GoRideShare
             PosterId = posterId;
             Name = name;
             Description = description;
+            DepartureDate = departureDate;
             OriginLat = originLat;
             OriginLng = originLng;
             DestinationLat = destinationLat;

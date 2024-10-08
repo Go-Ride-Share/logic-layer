@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 
 namespace GoRideShare
 {
@@ -25,7 +26,6 @@ namespace GoRideShare
             // Validate if essential post data is present
             if (newPost == null || string.IsNullOrEmpty(newPost.Name) ||
                 string.IsNullOrEmpty(newPost.Description) || 
-                string.IsNullOrEmpty(newPost.PosterId) || 
                 90 < newPost.OriginLat || newPost.OriginLat < -90 ||
                 90 < newPost.DestinationLat || newPost.DestinationLat < -90 ||
                 180 < newPost.OriginLng || newPost.OriginLng < -180 ||
@@ -34,6 +34,13 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Incomplete post data.");
             }
 
+            // Read the user ID and the db token from the headers
+            if (!req.Headers.TryGetValue("X-User-ID", out var userId) || !req.Headers.TryGetValue("X-Db-Token", out var db_token))
+            {
+                return new BadRequestObjectResult("Missing User-ID or Db-token header.");
+            }
+            newPost.PosterId = userId;
+
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/UpdatePost";
             if ( string.IsNullOrEmpty(newPost.PostId) ) 
@@ -41,10 +48,14 @@ namespace GoRideShare
                 endpoint = $"{_baseApiUrl}/api/CreatePost";
             }
 
+            _logger.LogInformation(endpoint);
+
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
             {
                 Content = new StringContent(JsonSerializer.Serialize(newPost), Encoding.UTF8, "application/json")
             };
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
+            requestMessage.Headers.Add("X-User-ID", userId.ToString());
 
             // Call the backend API to verify the login credentials
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
@@ -80,8 +91,8 @@ namespace GoRideShare
             {
                 // Log the error message and return a 400 Bad Request response
                 var errorMessage = await dbLayerResponse.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to create account: " + errorMessage);
-                return new BadRequestObjectResult("Failed to create account: " + errorMessage);
+                _logger.LogError("Failed to save post: " + errorMessage);
+                return new BadRequestObjectResult("Failed to save post: " + errorMessage);
             }
         }
     }
