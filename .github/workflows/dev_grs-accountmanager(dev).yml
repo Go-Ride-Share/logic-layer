@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - 'AccountManager/**'
   workflow_dispatch:
 
 env:
@@ -52,4 +54,3 @@ jobs:
           app-name: 'GRS-AccountManager'
           slot-name: 'dev'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          
