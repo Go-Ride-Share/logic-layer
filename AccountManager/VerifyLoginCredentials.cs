@@ -21,9 +21,18 @@ namespace GoRideShare
         {
             // Read the request body to get the user's login data (email and password hash)
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var userData = JsonSerializer.Deserialize<LoginCredentials>(requestBody);
-
             _logger.LogInformation($"Raw Request Body: {requestBody}");
+
+            LoginCredentials? userData = null;
+            try 
+            {
+                userData = JsonSerializer.Deserialize<LoginCredentials>(requestBody);
+            }
+            catch (JsonException e)
+            {
+                _logger.LogError(e.Message);
+                return new BadRequestObjectResult("There is a porblem in your request.");
+            }
 
             // Validate if the email and password hash are provided
             if (userData == null || string.IsNullOrEmpty(userData.Email) || string.IsNullOrEmpty(userData.PasswordHash))
