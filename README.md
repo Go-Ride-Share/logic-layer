@@ -147,7 +147,6 @@ Response paylaod template:
     "seatsAvailable": 2
 }
 ```
-
 ### /FindRides/Intercity
 Request paylaod template:
 ```
