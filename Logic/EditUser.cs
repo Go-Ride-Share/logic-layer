@@ -20,9 +20,13 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId) || !req.Headers.TryGetValue("X-Db-Token", out var db_token))
+            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
             {
-                return new BadRequestObjectResult("Missing User-ID or Db-token header.");
+                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
+            }
+            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
+            {
+                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
             }
 
             // Read the body content from the request

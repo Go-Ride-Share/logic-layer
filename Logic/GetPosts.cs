@@ -18,24 +18,25 @@ namespace GoRideShare
         [Function("GetPosts")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            
             // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId) || !req.Headers.TryGetValue("X-Db-Token", out var db_token))
+            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
             {
-                return new BadRequestObjectResult("Missing User-ID or Db-token header.");
+                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
             }
-
-            string posterId = req.Query["userId"];
-            if (string.IsNullOrEmpty(posterId)) {
-                return new BadRequestObjectResult("Missing Poster-ID");
-            } 
-            
+            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
+            {
+                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
+            }
+            // Read the posterId from the query params
+            if (!req.Query.TryGetValue("userId", out var posterId))
+            {
+                return new BadRequestObjectResult("Missing the following query param: \'userId\'");
+            }
+           
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{_baseApiUrl}/api/GetPosts?userId={posterId}"){};
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
             requestMessage.Headers.Add("X-User-ID", userId.ToString());
-
-            _logger.LogInformation($"{_baseApiUrl}/api/GetPosts?userId={posterId}");
 
             // Call the backend API to verify the login credentials
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
