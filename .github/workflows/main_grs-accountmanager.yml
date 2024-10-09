@@ -51,6 +51,6 @@ jobs:
         id: fa
         with:
           app-name: 'GRS-AccountManager'
-          slot-name: 'Production'
+          slot-name: 'dev'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
           

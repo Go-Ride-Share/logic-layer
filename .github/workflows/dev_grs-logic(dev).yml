@@ -8,7 +8,7 @@ on:
     branches:
       - dev
     paths:
-    - 'Logic/**'
+      - 'Logic/**'
   workflow_dispatch:
 
 env:
@@ -42,9 +42,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1A07DD3E5C384A3584F77945342BD68E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_815EBCC3BD66402299B286A3E385E02D }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DABA0F3B294444659121E152D619172E }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A45BF9A30A55471DAD822275C1D1129C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B833657BD24A4B4BA9722417FD94CE59 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A39293702066417B9F274211926E648E }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
