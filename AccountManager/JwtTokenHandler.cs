@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Runtime.ConstrainedExecution;
 
 public class JwtTokenHandler
 {
@@ -16,6 +17,8 @@ public class JwtTokenHandler
     private readonly string _authority;
     private readonly string _scope;
     private static readonly HttpClient _httpClient = new HttpClient();
+
+    private const string TOKEN_ERROR_MSG = "token_generation_error";
 
     public JwtTokenHandler(string? clientId, string? clientSecret, string? tenantId, string? scope)
     {
@@ -57,7 +60,7 @@ public class JwtTokenHandler
         }
         else
         {
-            throw new Exception($"Error generating token: {response.StatusCode}");
+            return TOKEN_ERROR_MSG;
         }
     }
 
