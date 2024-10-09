@@ -2,7 +2,7 @@ openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Go Ride Share Logic API
-  description: <h3> Internal Logic API for Post Operations
+  description: <h3> Internal Logic API for Logic Operations
 
 paths:
   /api/savePost:
@@ -16,34 +16,55 @@ paths:
         content:  
           application/json:
             schema:
-              $ref: '#/components/schemas/SampleRequest'   
+              $ref: '#/components/schemas/Post'   
+      parameters:
+        - name: X-User-ID
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Db-Token
+          in: header
+          required: true
+          schema:
+            type: string       
       responses:
         '200':
           description:  Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessfulResponse"       
+                $ref: "#/components/schemas/SuccessfulSavePostResponse"       
         '400':
           description: Unsuccessful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UnsuccessfulResponse"                
-  /api/getPosts/{user_id}:
+                $ref: "#/components/schemas/UnsuccessfulSavePostResponse"                
+  /api/getPosts/{userId}:
     get:
-      summary: Save a completed post to the databse
+      summary: Queries a users posts from the databse
       operationId: getPosts
       tags:
         - Posts
       parameters:
-        - name: user_id
+        - name: userId
           in: path
           description: The ID of the user whos posts you want to query
           required: true
           schema:
             type: string
             format: string    
+        - name: X-User-ID
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Db-Token
+          in: header
+          required: true
+          schema:
+            type: string                
       responses:   
         '200':
           description:  Success
@@ -56,11 +77,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UnsuccessfulResponse"                            
+                $ref: "#/components/schemas/UnsuccessfulGetPostResponse"                            
   /api/getUser:
     get:
       summary: Queries a users Profile from the DB
       operationId: getUser
+      parameters:
+        - name: X-User-ID
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Db-Token
+          in: header
+          required: true
+          schema:
+            type: string  
       tags:
         - Users
       responses:   
@@ -73,7 +105,7 @@ paths:
 
 components:
   schemas:
-    SampleRequest:
+    Post:
       type: object
       required:
         - name
@@ -107,14 +139,14 @@ components:
         seatsAvailable:
           type: number
           format: float  
-    SuccessfulResponse:
+    SuccessfulSavePostResponse:
       type: object
       required:
         - post_id
       properties:
         post_id:
           type: string            
-    UnsuccessfulResponse:
+    UnsuccessfulSavePostResponse:
       type: object
       required:
         - error
@@ -128,7 +160,7 @@ components:
         post_id:
           type: array
           items:
-            type: object                      
+            $ref: '#/components/schemas/Post'                     
     User:
       type: object
       required:
@@ -157,3 +189,11 @@ components:
         photo:
           type: string      
           example: "testPhotoUrl"   
+    UnsuccessfulGetPostResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string      
+          example: "Failed to get posts" 
