@@ -8,11 +8,18 @@ using System.Net.Http.Headers;
 
 namespace GoRideShare
 {
-    public class SavePost(ILogger<SavePost> logger)
+    public class SavePost
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private readonly ILogger<SavePost> _logger = logger;
-        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        private readonly ILogger<SavePost> _logger;
+        private readonly string? _baseApiUrl;
+        private readonly IHttpRequestHandler _httpRequestHandler;
+
+        public SavePost(ILogger<SavePost> logger, IHttpRequestHandler httpRequestHandler)
+        {
+            _logger = logger;
+            _httpRequestHandler = httpRequestHandler;
+            _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        }
 
         // This function is triggered by an HTTP POST request to create a new post
         [Function("SavePost")]
@@ -52,51 +59,30 @@ namespace GoRideShare
                 endpoint = $"{_baseApiUrl}/api/CreatePost";
             }
 
-            _logger.LogInformation(endpoint);
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
+            string body = JsonSerializer.Serialize(newPost);
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
+            if (!error)
             {
-                Content = new StringContent(JsonSerializer.Serialize(newPost), Encoding.UTF8, "application/json")
-            };
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
-            requestMessage.Headers.Add("X-User-ID", userId.ToString());
+                var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
 
-            // Call the backend API to verify the login credentials
-            var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
-
-            // Check if the backend API response indicates success
-            if (dbLayerResponse.IsSuccessStatusCode)
-            {
-                try
+                string? postId = dbResponseData?.PostId;
+                if (string.IsNullOrEmpty(postId))
                 {
-                    // Extract the response content and deserialize it to get the user_id and post_id
-                    var dbResponseContent = await dbLayerResponse.Content.ReadAsStringAsync();
-                    var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(dbResponseContent);
-
-                    string? postId = dbResponseData?.PostId;
-                    if (string.IsNullOrEmpty(postId))
-                    {
-                        _logger.LogError("Post ID not found in the response from the DB layer.");
-                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                    }
-
-                    return new OkObjectResult(new
-                    {
-                        postId = postId,
-                    });
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"An error occurred while processing the request: {ex.Message}");
+                    _logger.LogError("Post ID not found in the response from the DB layer.");
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
+
+                return new OkObjectResult(new
+                {
+                    postId = postId,
+                });
             }
             else
             {
-                // Log the error message and return a 400 Bad Request response
-                var errorMessage = await dbLayerResponse.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to save post: " + errorMessage);
-                return new BadRequestObjectResult("Failed to save post: " + errorMessage);
+                return new ObjectResult("Error connecting to the DB layer: " + response)
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
         }
     }
