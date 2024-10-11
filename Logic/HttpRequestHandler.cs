@@ -13,9 +13,9 @@ namespace GoRideShare
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public async Task<(bool, string)> MakeHttpGetRequest(string endpoint, string dbToken, string userId)
+        public async Task<(bool, string)> MakeHttpGetRequest(string endpoint, string? dbToken, string userId)
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint){};
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint) { };
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
             requestMessage.Headers.Add("X-User-ID", userId);
 
@@ -37,6 +37,14 @@ namespace GoRideShare
                     {
                         return (true, ex.Message);
                     }
+                }
+                else if (dbLayerResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return (true, "404: Not Found");
+                }
+                else if (dbLayerResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    return (true, "400: Bad Request");
                 }
                 else
                 {

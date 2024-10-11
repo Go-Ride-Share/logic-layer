@@ -10,7 +10,7 @@ namespace GoRideShare
 {
     public interface IHttpRequestHandler
     {
-        Task<(bool, string)> MakeHttpGetRequest(string endpoint, string dbToken, string userId);
+        Task<(bool, string)> MakeHttpGetRequest(string endpoint, string? dbToken, string userId);
     }
 
 }

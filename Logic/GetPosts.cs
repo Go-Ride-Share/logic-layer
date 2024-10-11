@@ -10,15 +10,15 @@ namespace GoRideShare
 {
     public class GetPosts
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
         private readonly ILogger<GetPosts> _logger;
         private readonly IHttpRequestHandler _httpRequestHandler;
-        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        private readonly string? _baseApiUrl;
 
         public GetPosts(ILogger<GetPosts> logger, IHttpRequestHandler httpRequestHandler)
         {
             _logger = logger;
             _httpRequestHandler = httpRequestHandler;
+            _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
 
         // This function is triggered by an HTTP GET request to retrive a users posts
@@ -40,10 +40,11 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Missing the following query param: \'userId\'");
             }
 
-            string endpoint =  $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
-            var ( error,  response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString() );
+            string endpoint = $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
 
-            if (!error){
+            if (!error)
+            {
                 var posts = JsonSerializer.Deserialize<List<PostDetails>>(response);
                 if (posts == null || posts.Count == 0)
                 {
@@ -54,7 +55,9 @@ namespace GoRideShare
                     };
                 }
                 return new OkObjectResult(posts);
-            } else {
+            }
+            else
+            {
                 return new ObjectResult("Error connecting to the DB layer.")
                 {
                     StatusCode = StatusCodes.Status500InternalServerError
