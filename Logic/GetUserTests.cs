@@ -71,7 +71,7 @@ namespace GoRideShare.Tests
             var result = await _getUser.Run(request);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnedUser = Assert.IsType<string>(okResult.Value); // Change to the actual type if necessary
+            var returnedUser = Assert.IsType<string>(okResult.Value);
             Assert.Equal(jsonResponse, returnedUser);
         }
 
