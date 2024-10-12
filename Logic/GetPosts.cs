@@ -8,11 +8,18 @@ using System.Net.Http.Headers;
 
 namespace GoRideShare
 {
-    public class GetPosts(ILogger<GetPosts> logger)
+    public class GetPosts
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private readonly ILogger<GetPosts> _logger = logger;
-        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        private readonly ILogger<GetPosts> _logger;
+        private readonly IHttpRequestHandler _httpRequestHandler;
+        private readonly string? _baseApiUrl;
+
+        public GetPosts(ILogger<GetPosts> logger, IHttpRequestHandler httpRequestHandler)
+        {
+            _logger = logger;
+            _httpRequestHandler = httpRequestHandler;
+            _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        }
 
         // This function is triggered by an HTTP GET request to retrive a users posts
         [Function("GetPosts")]
@@ -32,45 +39,29 @@ namespace GoRideShare
             {
                 return new BadRequestObjectResult("Missing the following query param: \'userId\'");
             }
-           
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{_baseApiUrl}/api/GetPosts?userId={posterId}"){};
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
-            requestMessage.Headers.Add("X-User-ID", userId.ToString());
 
-            // Call the backend API to verify the login credentials
-            var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
+            string endpoint = $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
 
-            // Check if the backend API response indicates success
-            if (dbLayerResponse.IsSuccessStatusCode)
+            if (!error)
             {
-                try
+                var posts = JsonSerializer.Deserialize<List<PostDetails>>(response);
+                if (posts == null || posts.Count == 0)
                 {
-                    var dbResponseContent = await dbLayerResponse.Content.ReadAsStringAsync();
-                    var posts = JsonSerializer.Deserialize<List<PostDetails>>(dbResponseContent);
-
-                    if (posts == null || posts.Count == 0)
+                    _logger.LogError("No posts found in the response from the DB layer.");
+                    return new ObjectResult("No posts found in the response from the DB layer.")
                     {
-                        _logger.LogError("No posts found in the response from the DB layer.");
-                        return new ObjectResult("No posts found in the response from the DB layer.")
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError
-                        };
-                    }
-                    return new OkObjectResult(posts);
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"An error occurred while processing the request: {ex.Message}");
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+                return new OkObjectResult(posts);
             }
             else
             {
-                // Log the error message and return a 400 Bad Request response
-                var errorMessage = await dbLayerResponse.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to get posts: " + errorMessage);
-                return new BadRequestObjectResult("Failed to get posts: " + errorMessage);
+                return new ObjectResult("Error connecting to the DB layer.")
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
         }
     }
