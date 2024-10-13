@@ -1,8 +1,8 @@
 ---
-name: Task template
+name: Template for Task tickets
 about: Be sure to link this to User story, include priority label, link the related
   branch
-title: Task template
+title: Sample task title
 labels: Task
 assignees: ''
 
