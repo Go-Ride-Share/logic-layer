@@ -6,21 +6,21 @@ using Microsoft.AspNetCore.Http;
 
 namespace GoRideShare
 {
-    public class SavePost
+    public class PostMessage 
     {
-        private readonly ILogger<SavePost> _logger;
+        private readonly ILogger<PostMessage> _logger;
         private readonly string? _baseApiUrl;
         private readonly IHttpRequestHandler _httpRequestHandler;
 
-        public SavePost(ILogger<SavePost> logger, IHttpRequestHandler httpRequestHandler)
+        public PostMessage(ILogger<PostMessage> logger, IHttpRequestHandler httpRequestHandler)
         {
             _logger = logger;
             _httpRequestHandler = httpRequestHandler;
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
 
-        // This function is triggered by an HTTP POST request to create a new post
-        [Function("SavePost")]
+        // This function is triggered by an HTTP POST request to create a new message in a conversation
+        [Function("PostMessage")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             // Read the user ID and the db token from the headers
@@ -35,10 +35,10 @@ namespace GoRideShare
 
             // Read the request body to get the user's registration information
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            PostDetails? newPost = null;
+            Message? newMessage = null;
             try
             {
-                newPost = JsonSerializer.Deserialize<PostDetails>(requestBody);
+                newMessage = JsonSerializer.Deserialize<Message>(requestBody);
             }
             catch (JsonException ex)
             {
@@ -46,40 +46,31 @@ namespace GoRideShare
             }
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
-            // Validate if essential post data is present
-            if (newPost == null)
+            // Validate if essential message data is present
+            if ( newMessage == null ||
+                string.IsNullOrEmpty(newMessage.ConversationId) ||
+                string.IsNullOrEmpty(newMessage.Contents))
             {
-                return new BadRequestObjectResult("Incomplete post data.");
+                return new BadRequestObjectResult("Incomplete Messgage. data.");
             }
-            else if (string.IsNullOrEmpty(newPost.Name) ||
-                string.IsNullOrEmpty(newPost.Description) ||
-                90 < newPost.OriginLat || newPost.OriginLat < -90 ||
-                90 < newPost.DestinationLat || newPost.DestinationLat < -90 ||
-                180 < newPost.OriginLng || newPost.OriginLng < -180 ||
-                180 < newPost.DestinationLng || newPost.DestinationLng < -180)
-            {
-                return new BadRequestObjectResult("Invalid post data.");
-            }
-            newPost.PosterId = userId;
+            newMessage.SenderId = userId.ToString();
+            newMessage.TimeStamp = DateTime.Now;
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var endpoint = $"{_baseApiUrl}/api/UpdatePost";
-            if (string.IsNullOrEmpty(newPost.PostId))
-            {   // Create the post if there is no ID
-                endpoint = $"{_baseApiUrl}/api/CreatePost";
-            }
+            var endpoint = $"{_baseApiUrl}/api/PostMessage";
 
-            string body = JsonSerializer.Serialize(newPost);
+            string body = JsonSerializer.Serialize(newMessage);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
+            (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
 
-                string? postId = dbResponseData?.PostId;
-                if (string.IsNullOrEmpty(postId))
+                string? id = dbResponseData?.Id;
+                if (string.IsNullOrEmpty(id))
                 {
-                    _logger.LogError("Post ID not found in the response from the DB layer.");
-                    return new ObjectResult("Post ID not found in the response from the DB layer.")
+                    _logger.LogError("Message ID not found in the response from the DB layer.");
+                    return new ObjectResult("Message ID not found in the response from the DB layer.")
                     {
                         StatusCode = StatusCodes.Status500InternalServerError
                     };
@@ -94,6 +85,17 @@ namespace GoRideShare
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
+        }
+    
+        private (bool, string) FakeHttpPostRequest(string endpoint, string body, string? dbToken, string userId)
+        {
+            var response = JsonSerializer.Serialize(
+                new DbLayerResponse
+                {
+                    Id = "31hft1-fukeqe2yeu1y8-sga1e2",
+                }
+            );
+            return (false, response);
         }
     }
 }

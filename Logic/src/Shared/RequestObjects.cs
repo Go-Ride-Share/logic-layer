@@ -5,8 +5,8 @@ namespace GoRideShare
 {
     public class DbLayerResponse
     {
-        [JsonPropertyName("post_id")]
-        public string? PostId { get; set; }
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
     }
 
     public class PostDetails
@@ -73,4 +73,58 @@ namespace GoRideShare
         }
     }
 
+    public class Conversation
+    {
+        [JsonPropertyName("userId")]
+        public string UserId { get; set; }
+        
+        [JsonPropertyName("conversationId")]
+        public string ConversationId { get; set; }
+
+        [JsonPropertyName("messages")]
+        public List<Message> Messages { get; set; } = new List<Message>();
+
+        public Conversation() { }
+
+        public Conversation
+        (
+            string userId,
+            string conversationId,
+            List<Message> messages
+        )
+        {
+            UserId = userId;
+            ConversationId = conversationId;
+            Messages = messages;
+        }
+    }
+
+    public class Message
+    {
+        [JsonPropertyName("timeStamp")]
+        public DateTime TimeStamp  { get; set; }
+        
+        [JsonPropertyName("senderId")]
+        public string SenderId { get; set; }
+
+        [JsonPropertyName("conversationId")]
+        public string ConversationId { get; set; }
+        
+        [JsonPropertyName("contents")]
+        public string Contents { get; set; }
+        public Message() { }
+        public Message
+        (
+            DateTime timestamp,
+            string senderId,
+            string conversationId,
+            string contents
+        )
+        {
+            TimeStamp = timestamp;
+            SenderId = senderId;
+            ConversationId = conversationId;
+            Contents = contents;
+        }
+    }
 }

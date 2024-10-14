@@ -117,7 +117,7 @@ namespace GoRideShare.Tests
             var requestBody = JsonSerializer.Serialize(validPost);
             request.Body = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
 
-            var mockResponse = new DbLayerResponse{ PostId = "test_post_id" };
+            var mockResponse = new DbLayerResponse{ Id = "test_post_id" };
             var jsonResponse = JsonSerializer.Serialize(mockResponse);
 
             _httpRequestHandlerMock
@@ -155,7 +155,7 @@ namespace GoRideShare.Tests
             var requestBody = JsonSerializer.Serialize(validPost);
             request.Body = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
 
-            var mockResponse = new DbLayerResponse{ PostId = "" };
+            var mockResponse = new DbLayerResponse{ Id = "" };
             var jsonResponse = JsonSerializer.Serialize(mockResponse);
 
             _httpRequestHandlerMock
