@@ -106,5 +106,10 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Failed to login into the account: " + errorMessage);
             }
         }
+
+        public bool TestFunc()
+        {
+            return false;
+        }
     }
 }
