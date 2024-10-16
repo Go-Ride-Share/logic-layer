@@ -23,20 +23,17 @@ namespace GoRideShare
         [Function("GetAllConversations")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
+                return validationResult;
             }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
-            }
-            
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
+           
+            // Create the HttpRequestMessage and add the dbToken to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/GetAllConversations";
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
-            (error, response) = FakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, dbToken, userId.ToString());
+            (error, response) = FakeHttpGetRequest(endpoint, dbToken, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<List<Conversation>>(response);

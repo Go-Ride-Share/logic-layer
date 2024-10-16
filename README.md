@@ -18,7 +18,7 @@ Response payload template:
 {
     user_id: string, ex "new_user_guid",
     logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
-    db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
+    dbToken: string, ex "oauth-token-generated-by-microsoft-for-db-access",
     photo: string, ex "photo_encoding"
 }
 ```
@@ -37,7 +37,7 @@ Response payload template:
 {
     user_id: string, ex "new_user_guid",
     logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
-    db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
+    dbToken: string, ex "oauth-token-generated-by-microsoft-for-db-access",
     photo: string, ex "photo_encoding"
 }
 ```
