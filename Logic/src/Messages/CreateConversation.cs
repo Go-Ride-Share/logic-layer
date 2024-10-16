@@ -35,32 +35,32 @@ namespace GoRideShare
 
             // Read the request body to get the user's registration information
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            Conversation? newConvo = null;
+            IncomingConversationRequest? newConvo = null;
             try
             {
-                newConvo = JsonSerializer.Deserialize<Conversation>(requestBody);
+                newConvo = JsonSerializer.Deserialize<IncomingConversationRequest>(requestBody);
+                if (newConvo == null || string.IsNullOrEmpty(newConvo.UserId))
+                {
+                    return new BadRequestObjectResult("Incomplete Convo. data.");
+                }
             }
             catch (JsonException ex)
             {
                 _logger.LogError($"JSON deserialization failed: {ex.Message}");
+                return new BadRequestObjectResult("Incomplete Conversation Request data.");
             }
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
-            // Validate if essential post data is present
-            if (newConvo == null)
-            {
-                return new BadRequestObjectResult("Incomplete Convo. data.");
-            }
-            else if (string.IsNullOrEmpty(newConvo.UserId))
-            {
-                return new BadRequestObjectResult("A userId is required");
-            }
-            newConvo.UserId = userId;
+            // Add fields required by the DB Layer
+            var conversation = new OutgoingConversationRequest{
+                UserId = newConvo.UserId,
+                TimeStamp = DateTime.Now,
+                Contents = newConvo.Contents
+            };
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/CreateConversation";
-
-            string body = JsonSerializer.Serialize(newConvo);
+            string body = JsonSerializer.Serialize(conversation);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
@@ -77,7 +77,7 @@ namespace GoRideShare
                     };
                 }
 
-                return new OkObjectResult(response);
+                return new OkObjectResult(dbResponseData);
             }
             else
             {
@@ -93,7 +93,7 @@ namespace GoRideShare
             var response = JsonSerializer.Serialize(
                 new DbLayerResponse
                 {
-                    Id = "guyka1-3uy127r3113e1v-c12d1v",
+                    Id = "ccccc-cccccccccc-ccccc",
                 }
             );
             return (false, response);

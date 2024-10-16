@@ -35,14 +35,13 @@ namespace GoRideShare
             
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/GetAllConversations";
-
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
             (error, response) = FakeHttpGetRequest(endpoint, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<List<Conversation>>(response);
                 // Validation
-                return new OkObjectResult(response);
+                return new OkObjectResult(dbResponseData);
             }
             else
             {
@@ -56,31 +55,27 @@ namespace GoRideShare
         private (bool, string) FakeHttpGetRequest(string endpoint, string? dbToken, string userId)
         {
             var messages = new List<Message>();
-            var conversations = new List<Conversation>();
             messages.Add(
                 new Message {
                     TimeStamp = DateTime.Now.AddMinutes(-1),
-                    SenderId = "guyka1-3uy127r3113e1v-c12d1v",
-                    ConversationId = "fauwe1-1nuoih13131uda-g78o11",
-                    Contents = "Hello"
-                }       
-            );            
-            messages.Add(
-                new Message {
-                    TimeStamp = DateTime.Now,
-                    SenderId = "guyka1-3uy127r3113e1v-c12d1v",
-                    ConversationId = "fauwe1-1nuoih13131uda-g78o11",
+                    SenderId = "bbbbb-bbbbbbbbbb-bbbbb",
                     Contents = "I would like to join you on the trip!"
                 }       
-            );
+            );   
+            var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
+            var conversations = new List<Conversation>();
             conversations.Add(
-                new Conversation {
-                    UserId = "guyka1-3uy127r3113e1v-c12d1v",
-                    ConversationId = "fauwe1-1nuoih13131uda-g78o11",
+                new Conversation
+                {
+                    User = user,
+                    ConversationId = "ccccc-cccccccccc-ccccc",
                     Messages = messages,
+                    PostId = "aaaaa-aaaaaaaaaa-aaaaa",
                 }
+            );        
+            var response = JsonSerializer.Serialize(
+                conversations
             );
-            var response = JsonSerializer.Serialize(conversations);
             return (false, response);
         }
     }
