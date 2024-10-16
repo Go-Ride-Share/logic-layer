@@ -23,14 +23,11 @@ namespace GoRideShare
         [Function("PollConversation")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
-            }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
+                return validationResult;
             }
 
             // Read the conversationId from the query params
@@ -39,17 +36,16 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Missing the following query param: \'conversationId\'");
             }
             
+            // Timestamp is an optional parameter to limit the response size
             var endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}";
-            if (!req.Query.TryGetValue("timeStamp", out var timeStamp))
+            if (req.Query.TryGetValue("timeStamp", out var timeStamp))
             {
-                endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}";
-            } else {
                 endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}&timeStamp={timeStamp}";
             }
 
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
-            (error, response) = FakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            // Create the HttpRequestMessage and add the dbToken to the Authorization header
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, dbToken, userId.ToString());
+            (error, response) = FakeHttpGetRequest(endpoint, dbToken, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);

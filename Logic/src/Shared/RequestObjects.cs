@@ -75,9 +75,11 @@ namespace GoRideShare
 
     public class User
     {
+        [JsonRequired]
         [JsonPropertyName("userId")]
         public string UserId { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -99,15 +101,19 @@ namespace GoRideShare
 
     public class Conversation
     {
+        [JsonRequired]
         [JsonPropertyName("conversationId")]
         public string ConversationId { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("messages")]
         public List<Message> Messages { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("user")]
         public User User { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("postId")]
         public string PostId { get; set; }
 
@@ -130,12 +136,15 @@ namespace GoRideShare
 
     public class Message
     {
+        [JsonRequired]
         [JsonPropertyName("timeStamp")]
         public DateTime TimeStamp  { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("senderId")]
         public string SenderId { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
         public Message() { }
@@ -154,9 +163,11 @@ namespace GoRideShare
 
     public class IncomingConversationRequest
     {
+        [JsonRequired]
         [JsonPropertyName("userId")]
         public string UserId  { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
 
@@ -170,16 +181,32 @@ namespace GoRideShare
             UserId = userId;
             Contents = contents;
         }
+
+        public (bool, string) validate()
+        {
+            if ( Contents == "")
+            {
+                return (true, "contents cannot be empty");
+            }
+            if ( UserId == "")
+            {
+                return (true, "userId is invalid");
+            }
+            return (false, "");
+        }
     }
 
     public class OutgoingConversationRequest
     {
+        [JsonRequired]
         [JsonPropertyName("userId")]
         public string UserId  { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("timeStamp")]
         public System.DateTime TimeStamp { get; set; }
 
@@ -199,9 +226,11 @@ namespace GoRideShare
 
     public class IncomingMessageRequest
     {
+        [JsonRequired]
         [JsonPropertyName("conversationId")]
         public string ConversationId  { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
 
@@ -215,19 +244,36 @@ namespace GoRideShare
             ConversationId = conversationId;
             Contents = contents;
         }
+
+        public (bool, string) validate()
+        {
+            if ( Contents == "")
+            {
+                return (true, "contents cannot be empty");
+            }
+            if ( ConversationId == "")
+            {
+                return (true, "conversationId is invalid");
+            }
+            return (false, "");
+        }
     }
 
     public class OutgoingMessageRequest
     {
+        [JsonRequired]
         [JsonPropertyName("conversationId")]
         public string ConversationId  { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
         
+        [JsonRequired]
         [JsonPropertyName("userId")]
         public string UserId { get; set; }
 
+        [JsonRequired]
         [JsonPropertyName("timeStamp")]
         public System.DateTime TimeStamp { get; set; }
 

@@ -23,14 +23,11 @@ namespace GoRideShare
         [Function("CreateConversation")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
-            }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
+                return validationResult;
             }
 
             // Read the request body to get the user's registration information
@@ -39,9 +36,10 @@ namespace GoRideShare
             try
             {
                 newConvo = JsonSerializer.Deserialize<IncomingConversationRequest>(requestBody);
-                if (newConvo == null || string.IsNullOrEmpty(newConvo.UserId))
+                var (invalid, errorMessage) = newConvo.validate();
+                if (invalid)
                 {
-                    return new BadRequestObjectResult("Incomplete Convo. data.");
+                    return new BadRequestObjectResult(errorMessage);
                 }
             }
             catch (JsonException ex)
@@ -58,11 +56,11 @@ namespace GoRideShare
                 Contents = newConvo.Contents
             };
 
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
+            // Create the HttpRequestMessage and add the dbToken to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/CreateConversation";
             string body = JsonSerializer.Serialize(conversation);
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
-            (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, dbToken, userId.ToString());
+            (error, response) = FakeHttpPostRequest(endpoint, body, dbToken, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
