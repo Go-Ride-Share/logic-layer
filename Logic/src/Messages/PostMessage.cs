@@ -33,33 +33,35 @@ namespace GoRideShare
                 return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
             }
 
-            // Read the request body to get the user's registration information
+            // Validate if essential message data is present
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            Message? newMessage = null;
+            IncomingMessageRequest? newMessage = null;
             try
             {
-                newMessage = JsonSerializer.Deserialize<Message>(requestBody);
+                newMessage = JsonSerializer.Deserialize<IncomingMessageRequest>(requestBody);
+                if ( newMessage == null || string.IsNullOrEmpty(newMessage.ConversationId) || string.IsNullOrEmpty(newMessage.Contents))
+                {
+                    return new BadRequestObjectResult("Incomplete Messgage. data.");
+                }
             }
             catch (JsonException ex)
             {
                 _logger.LogError($"JSON deserialization failed: {ex.Message}");
+                return new BadRequestObjectResult("Incomplete Messgage. data.");
             }
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
-            // Validate if essential message data is present
-            if ( newMessage == null ||
-                string.IsNullOrEmpty(newMessage.ConversationId) ||
-                string.IsNullOrEmpty(newMessage.Contents))
-            {
-                return new BadRequestObjectResult("Incomplete Messgage. data.");
-            }
-            newMessage.SenderId = userId.ToString();
-            newMessage.TimeStamp = DateTime.Now;
+            // Add fields required by the DB Layer
+            var message = new OutgoingMessageRequest{
+                UserId = userId.ToString(),
+                TimeStamp = DateTime.Now,
+                ConversationId = newMessage.ConversationId,
+                Contents = newMessage.Contents
+            };
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/PostMessage";
-
-            string body = JsonSerializer.Serialize(newMessage);
+            string body = JsonSerializer.Serialize(message);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
@@ -76,11 +78,11 @@ namespace GoRideShare
                     };
                 }
 
-                return new OkObjectResult(response);
+                return new OkObjectResult(dbResponseData);
             }
             else
             {
-                return new ObjectResult("Error connecting to the DB layer: " + response)
+                return new ObjectResult("Message Failed: " + response)
                 {
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
