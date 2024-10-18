@@ -50,12 +50,12 @@ namespace GoRideShare
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
             // Add fields required by the DB Layer
-            var message = new OutgoingMessageRequest{
-                UserId = userId.ToString(),
-                TimeStamp = DateTime.Now,
-                ConversationId = newMessage.ConversationId,
-                Contents = newMessage.Contents
-            };
+            var message = new OutgoingMessageRequest(
+                userId: userId.ToString(),
+                timeStamp: DateTime.Now,
+                conversationId: newMessage.ConversationId,
+                contents: newMessage.Contents
+            );
 
             // Create the HttpRequestMessage and add the dbToken to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/PostMessage";

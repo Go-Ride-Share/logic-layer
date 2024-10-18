@@ -66,28 +66,28 @@ namespace GoRideShare
         {
             var messages = new List<Message>();
             messages.Add(
-                new Message {
-                    TimeStamp = DateTime.Now.AddMinutes(-1),
-                    SenderId = "bbbbb-bbbbbbbbbb-bbbbb",
-                    Contents = "Hello"
-                }       
+                new Message (
+                    timeStamp: DateTime.Now.AddMinutes(-1),
+                    senderId: "bbbbb-bbbbbbbbbb-bbbbb",
+                    contents: "Hello"
+                )       
             );            
             messages.Add(
-                new Message {
-                    TimeStamp = DateTime.Now,
-                    SenderId = "bbbbb-bbbbbbbbbb-bbbbb",
-                    Contents = "I would like to join you on the trip!"
-                }       
+                new Message (
+                    timeStamp: DateTime.Now,
+                    senderId: "bbbbb-bbbbbbbbbb-bbbbb",
+                    contents: "I would like to join you on the trip!"
+                )       
             );
             var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
             var response = JsonSerializer.Serialize(
                 new Conversation
-                {
-                    User = user,
-                    ConversationId = "ccccc-cccccccccc-ccccc",
-                    Messages = messages,
-                    PostId = "aaaaa-aaaaaaaaaa-aaaaa",
-                }
+                (
+                    user: user,
+                    conversationId: "ccccc-cccccccccc-ccccc",
+                    messages: messages,
+                    postId: "aaaaa-aaaaaaaaaa-aaaaa"
+                )
             );
             return (false, response);
         }
