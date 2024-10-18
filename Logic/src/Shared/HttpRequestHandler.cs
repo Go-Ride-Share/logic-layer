@@ -53,7 +53,7 @@ namespace GoRideShare
             {
                 return (true, ex.Message);
             }
-            catch (System.NotSupportedException ex)
+            catch (System.NotSupportedException)
             {
                 return (true, "Invalid Database URL");
             }
@@ -102,7 +102,7 @@ namespace GoRideShare
             {
                 return (true, ex.Message);
             }
-            catch (System.NotSupportedException ex)
+            catch (System.NotSupportedException)
             {
                 return (true, "Invalid Database URL");
             }

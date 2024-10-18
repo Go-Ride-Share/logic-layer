@@ -50,11 +50,11 @@ namespace GoRideShare
             _logger.LogInformation($"Raw Request Body: {JsonSerializer.Serialize(requestBody)}");
 
             // Add fields required by the DB Layer
-            var conversation = new OutgoingConversationRequest{
-                UserId = newConvo.UserId,
-                TimeStamp = DateTime.Now,
-                Contents = newConvo.Contents
-            };
+            var conversation = new OutgoingConversationRequest(
+                userId: newConvo.UserId,
+                timeStamp: DateTime.Now,
+                contents: newConvo.Contents
+            );
 
             // Create the HttpRequestMessage and add the dbToken to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/CreateConversation";
@@ -63,18 +63,8 @@ namespace GoRideShare
             (error, response) = FakeHttpPostRequest(endpoint, body, dbToken, userId.ToString());
             if (!error)
             {
-                var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
-
-                string? id = dbResponseData?.Id;
-                if (string.IsNullOrEmpty(id))
-                {
-                    _logger.LogError("Conversation ID not found in the response from the DB layer.");
-                    return new ObjectResult("Conversation ID not found in the response from the DB layer.")
-                    {
-                        StatusCode = StatusCodes.Status500InternalServerError
-                    };
-                }
-
+                var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);
+                // Validation
                 return new OkObjectResult(dbResponseData);
             }
             else
@@ -89,11 +79,23 @@ namespace GoRideShare
     
         private (bool, string) FakeHttpPostRequest(string endpoint, string body, string? dbToken, string userId)
         {
+            var messages = new List<Message>();
+            messages.Add(
+                new Message(
+                    timeStamp: DateTime.Now,
+                    senderId: userId,
+                    contents: "Hello"
+                )       
+            );            
+            var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
             var response = JsonSerializer.Serialize(
-                new DbLayerResponse
-                {
-                    Id = "ccccc-cccccccccc-ccccc",
-                }
+                new Conversation
+                (
+                    user: user,
+                    conversationId: "ccccc-cccccccccc-ccccc",
+                    messages: messages,
+                    postId: "aaaaa-aaaaaaaaaa-aaaaa"
+                )
             );
             return (false, response);
         }

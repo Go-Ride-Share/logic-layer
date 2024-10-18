@@ -117,8 +117,6 @@ namespace GoRideShare
         [JsonPropertyName("postId")]
         public string PostId { get; set; }
 
-        public Conversation() { }
-
         public Conversation
         (
             string conversationId,
@@ -147,15 +145,15 @@ namespace GoRideShare
         [JsonRequired]
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
-        public Message() { }
+
         public Message
         (
-            DateTime timestamp,
+            DateTime timeStamp,
             string senderId,
             string contents
         )
         {
-            TimeStamp = timestamp;
+            TimeStamp = timeStamp;
             SenderId = senderId;
             Contents = contents;
         }
@@ -171,7 +169,6 @@ namespace GoRideShare
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
 
-        public IncomingConversationRequest() { }
         public IncomingConversationRequest
         (
             string contents,
@@ -210,7 +207,6 @@ namespace GoRideShare
         [JsonPropertyName("timeStamp")]
         public System.DateTime TimeStamp { get; set; }
 
-        public OutgoingConversationRequest() { }
         public OutgoingConversationRequest
         (
             string contents,
@@ -234,7 +230,6 @@ namespace GoRideShare
         [JsonPropertyName("contents")]
         public string Contents { get; set; }
 
-        public IncomingMessageRequest() { }
         public IncomingMessageRequest
         (
             string conversationId,
@@ -277,7 +272,6 @@ namespace GoRideShare
         [JsonPropertyName("timeStamp")]
         public System.DateTime TimeStamp { get; set; }
 
-        public OutgoingMessageRequest() { }
         public OutgoingMessageRequest
         (
             string conversationId,
