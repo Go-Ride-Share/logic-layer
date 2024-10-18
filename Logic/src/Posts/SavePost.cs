@@ -23,14 +23,11 @@ namespace GoRideShare
         [Function("SavePost")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
-            }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
+                return validationResult;
             }
 
             // Read the request body to get the user's registration information
@@ -62,7 +59,7 @@ namespace GoRideShare
             }
             newPost.PosterId = userId;
 
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
+            // Create the HttpRequestMessage and add the dbToken to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/UpdatePost";
             if (string.IsNullOrEmpty(newPost.PostId))
             {   // Create the post if there is no ID
@@ -70,13 +67,13 @@ namespace GoRideShare
             }
 
             string body = JsonSerializer.Serialize(newPost);
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, dbToken, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
 
-                string? postId = dbResponseData?.PostId;
-                if (string.IsNullOrEmpty(postId))
+                string? id = dbResponseData?.Id;
+                if (string.IsNullOrEmpty(id))
                 {
                     _logger.LogError("Post ID not found in the response from the DB layer.");
                     return new ObjectResult("Post ID not found in the response from the DB layer.")
