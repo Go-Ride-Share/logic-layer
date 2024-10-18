@@ -69,7 +69,7 @@ components:
         logic_token:
           type: string      
           example: "oauth-token-generated-by-microsoft-for-logic-access"  
-        db_token:
+        dbToken:
           type: string      
           example: "oauth-token-generated-by-microsoft-for-db-access"     
 # CreateUser

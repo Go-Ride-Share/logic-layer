@@ -15,12 +15,11 @@ namespace GoRideShare
 
         public async Task<(bool, string)> MakeHttpGetRequest(string endpoint, string? dbToken, string userId)
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint) { };
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
-            requestMessage.Headers.Add("X-User-ID", userId);
-
             try
             {
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint) { };
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
+                requestMessage.Headers.Add("X-User-ID", userId);
                 var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
                 if (dbLayerResponse.IsSuccessStatusCode)
@@ -53,20 +52,23 @@ namespace GoRideShare
             catch (System.Net.Http.HttpRequestException ex)
             {
                 return (true, ex.Message);
+            }
+            catch (System.NotSupportedException ex)
+            {
+                return (true, "Invalid Database URL");
             }
         }
     
         public async Task<(bool, string)> MakeHttpPostRequest(string endpoint, string body, string? dbToken, string userId)
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint) 
-            {
-                Content = new StringContent(body, Encoding.UTF8, "application/json")
-            };
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
-            requestMessage.Headers.Add("X-User-ID", userId);
-
             try
             {
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint) 
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")
+                };
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
+                requestMessage.Headers.Add("X-User-ID", userId);
                 var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
                 if (dbLayerResponse.IsSuccessStatusCode)
@@ -99,6 +101,10 @@ namespace GoRideShare
             catch (System.Net.Http.HttpRequestException ex)
             {
                 return (true, ex.Message);
+            }
+            catch (System.NotSupportedException ex)
+            {
+                return (true, "Invalid Database URL");
             }
         }
     }

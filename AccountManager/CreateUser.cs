@@ -47,14 +47,14 @@ namespace GoRideShare
                                                     Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
                                                     Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
                                                     Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
-            string db_token = await jwtTokenHandler.GenerateTokenAsync();
+            string dbToken = await jwtTokenHandler.GenerateTokenAsync();
 
             // Send request to db
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };
-            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", db_token);
+            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
             // Check db response
@@ -90,7 +90,7 @@ namespace GoRideShare
                     {
                         User_id = userId,
                         Logic_token = logic_token,
-                        Db_token = db_token,
+                        dbToken = dbToken,
                         Photo = userData.Photo ?? null
                     });
                 }
