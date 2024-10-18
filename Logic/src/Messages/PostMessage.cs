@@ -80,6 +80,7 @@ namespace GoRideShare
             }
             else
             {
+                _logger.LogError($"Error: {response}");
                 return new ObjectResult("Message Failed: " + response)
                 {
                     StatusCode = StatusCodes.Status500InternalServerError

@@ -50,6 +50,7 @@ namespace GoRideShare
             }
             else
             {
+                _logger.LogError($"Error: {response}");
                 return new ObjectResult("Error connecting to the DB layer.")
                 {
                     StatusCode = StatusCodes.Status500InternalServerError
