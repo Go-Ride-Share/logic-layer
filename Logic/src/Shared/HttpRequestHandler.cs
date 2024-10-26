@@ -13,12 +13,12 @@ namespace GoRideShare
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public async Task<(bool, string)> MakeHttpGetRequest(string endpoint, string? dbToken, string userId)
+        public async Task<(bool, string)> MakeHttpGetRequest(string endpoint, string? db_token, string userId)
         {
             try
             {
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint) { };
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
                 requestMessage.Headers.Add("X-User-ID", userId);
                 var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 
@@ -59,7 +59,7 @@ namespace GoRideShare
             }
         }
     
-        public async Task<(bool, string)> MakeHttpPostRequest(string endpoint, string body, string? dbToken, string userId)
+        public async Task<(bool, string)> MakeHttpPostRequest(string endpoint, string body, string? db_token, string userId)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace GoRideShare
                 {
                     Content = new StringContent(body, Encoding.UTF8, "application/json")
                 };
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
                 requestMessage.Headers.Add("X-User-ID", userId);
                 var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
 

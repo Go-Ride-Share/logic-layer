@@ -34,7 +34,7 @@ namespace GoRideShare.Tests
         }
 
         [Fact]
-        public async Task Run_MissingDbTokenHeader_ReturnsBadRequest()
+        public async Task Run_Missingdb_tokenHeader_ReturnsBadRequest()
         {
             var context = new DefaultHttpContext();
             var request = context.Request;

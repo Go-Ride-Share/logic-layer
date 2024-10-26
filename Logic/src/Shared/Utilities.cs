@@ -8,24 +8,24 @@ namespace GoRideShare
 {
     public static class Utilities
     {
-        // Method that validates headers, outputs the userID and dbToken, returns exception if headers  missing, null if headers are good
-        public static IActionResult ValidateHeaders(IHeaderDictionary headers, out string userId, out string dbToken)
+        // Method that validates headers, outputs the userID and db_token, returns exception if headers  missing, null if headers are good
+        public static IActionResult ValidateHeaders(IHeaderDictionary headers, out string userId, out string db_token)
         {
             userId = string.Empty;
-            dbToken = string.Empty;
+            db_token = string.Empty;
 
-            // Check for X-User-ID  and X-DbToken headers
+            // Check for X-User-ID  and X-db_token headers
             if (!headers.TryGetValue("X-User-ID", out var userIdValue))
             {
                 return new BadRequestObjectResult("Missing the following header: 'X-User-ID'.");
             }
             userId = userIdValue.ToString();
 
-            if (!headers.TryGetValue("X-Db-Token", out var dbTokenValue))
+            if (!headers.TryGetValue("X-Db-Token", out var db_tokenValue))
             {
                 return new BadRequestObjectResult("Missing the following header: 'X-Db-Token'.");
             }
-            dbToken = dbTokenValue.ToString();
+            db_token = db_tokenValue.ToString();
 
             return null; // All headers are valid
         }
