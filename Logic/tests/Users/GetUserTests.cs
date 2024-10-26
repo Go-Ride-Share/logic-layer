@@ -43,7 +43,7 @@ namespace GoRideShare.Tests
             var result = await _getUser.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following header 'X-Db-Token'.", badRequestResult.Value);
+            Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
         }
 
         [Fact]
