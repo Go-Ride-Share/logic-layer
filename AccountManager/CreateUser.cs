@@ -90,7 +90,7 @@ namespace GoRideShare
                     {
                         User_id = userId,
                         Logic_token = logic_token,
-                        Db_token = db_token,
+                        db_token = db_token,
                         Photo = userData.Photo ?? null
                     });
                 }

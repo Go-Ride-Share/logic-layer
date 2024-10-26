@@ -19,14 +19,11 @@ namespace GoRideShare
         [Function("EditUser")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: \'X-User-ID\'.");
-            }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header \'X-Db-Token\'.");
+                return validationResult;
             }
 
             // Read the body content from the request
@@ -40,8 +37,6 @@ namespace GoRideShare
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/EditUser");
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
             requestMessage.Headers.Add("X-User-ID", userId.ToString());
-
-            _logger.LogInformation($"REQQQQQQQQ: {requestMessage}");
 
             // Set the request content
             requestMessage.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");

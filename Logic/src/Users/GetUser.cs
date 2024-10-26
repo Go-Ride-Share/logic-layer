@@ -25,14 +25,11 @@ namespace GoRideShare
         [Function("GetUser")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            // Read the user ID and the db token from the headers
-            if (!req.Headers.TryGetValue("X-User-ID", out var userId))
+            // If validation result is not null, return the bad request result
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
+            if (validationResult != null)
             {
-                return new BadRequestObjectResult("Missing the following header: 'X-User-ID'.");
-            }
-            if (!req.Headers.TryGetValue("X-Db-Token", out var db_token))
-            {
-                return new BadRequestObjectResult("Missing the following header 'X-Db-Token'.");
+                return validationResult;
             }
 
             string endpoint = $"{_baseApiUrl}/api/GetUser";
