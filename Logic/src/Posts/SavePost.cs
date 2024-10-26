@@ -24,7 +24,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
@@ -59,7 +59,7 @@ namespace GoRideShare
             }
             newPost.PosterId = userId;
 
-            // Create the HttpRequestMessage and add the dbToken to the Authorization header
+            // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/UpdatePost";
             if (string.IsNullOrEmpty(newPost.PostId))
             {   // Create the post if there is no ID
@@ -67,7 +67,7 @@ namespace GoRideShare
             }
 
             string body = JsonSerializer.Serialize(newPost);
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, dbToken, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);

@@ -47,16 +47,16 @@ namespace GoRideShare
                                                     Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
 
             // Generate the OAuth 2.0 token for db_layer
-            string dbToken = await jwtTokenHandler.GenerateTokenAsync();
+            string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
-            // Create the HttpRequestMessage and add the dbToken to the Authorization header
+            // Create the HttpRequestMessage and add the db_token to the Authorization header
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/VerifyLoginCredentials")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };
 
-            // Add the dbToken to the Authorization header
-            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
+            // Add the db_token to the Authorization header
+            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", db_token);
 
             // Call the backend API to verify the login credentials
             var dbLayerResponse = await _httpClient.SendAsync(requestMessage);
@@ -96,7 +96,7 @@ namespace GoRideShare
                     {
                         User_id = userId,
                         Logic_token = logic_token,
-                        dbToken = dbToken,
+                        db_token = db_token,
                         Photo = photo
                     });
                 }

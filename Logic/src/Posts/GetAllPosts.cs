@@ -26,15 +26,15 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
             }
 
             string endpoint = $"{_baseApiUrl}/api/GetAllPosts";
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, dbToken, userId.ToString());
-            (error, response) = FakeHttpGetRequest(endpoint, dbToken, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            (error, response) = FakeHttpGetRequest(endpoint, db_token, userId.ToString());
             if (!error)
             {
                 var posts = JsonSerializer.Deserialize<List<PostDetails>>(response);
@@ -58,7 +58,7 @@ namespace GoRideShare
             }
         }
 
-        private (bool, string) FakeHttpGetRequest(string endpoint, string? dbToken, string userId)
+        private (bool, string) FakeHttpGetRequest(string endpoint, string? db_token, string userId)
         {
             var posts = new List<object>();
             posts.Add(

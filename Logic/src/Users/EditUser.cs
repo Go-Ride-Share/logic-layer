@@ -20,7 +20,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string dbToken);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
@@ -33,12 +33,10 @@ namespace GoRideShare
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            // Create the HttpRequestMessage and add the dbToken to the Authorization header
+            // Create the HttpRequestMessage and add the db_token to the Authorization header
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/EditUser");
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", dbToken);
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
             requestMessage.Headers.Add("X-User-ID", userId.ToString());
-
-            _logger.LogInformation($"REQQQQQQQQ: {requestMessage}");
 
             // Set the request content
             requestMessage.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
