@@ -7,57 +7,17 @@ using Xunit;
 
 namespace GoRideShare.Tests
 {
-    public class GetPostsTests
+    public class GetAllPostsTests
     {
-        private readonly Mock<ILogger<GetPosts>> _loggerMock;
+        private readonly Mock<ILogger<GetAllPosts>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
-        private readonly GetPosts _getPosts;
+        private readonly GetAllPosts _getAllPosts;
 
-        public GetPostsTests()
+        public GetAllPostsTests()
         {
-            _loggerMock = new Mock<ILogger<GetPosts>>();
+            _loggerMock = new Mock<ILogger<GetAllPosts>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _getPosts = new GetPosts(_loggerMock.Object, _httpRequestHandlerMock.Object);
-        }
-
-        [Fact]
-        public async Task Run_MissingUserIdHeader_ReturnsBadRequest()
-        {
-            var context = new DefaultHttpContext();
-            var request = context.Request;
-            request.Headers["X-Db-Token"] = "db-token";
-
-            var result = await _getPosts.Run(request);
-
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following header: 'X-User-ID'.", badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task Run_Missingdb_tokenHeader_ReturnsBadRequest()
-        {
-            var context = new DefaultHttpContext();
-            var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
-
-            var result = await _getPosts.Run(request);
-
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task Run_MissingUserIdQueryParam_ReturnsBadRequest()
-        {
-            var context = new DefaultHttpContext();
-            var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
-            request.Headers["X-Db-Token"] = "db-token";
-
-            var result = await _getPosts.Run(request);
-
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following query param: 'userId'", badRequestResult.Value);
+            _getAllPosts = new GetAllPosts(_loggerMock.Object, _httpRequestHandlerMock.Object);
         }
 
         [Fact]
@@ -65,15 +25,12 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
-            request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
 
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>()))
                 .ReturnsAsync((false, "[]"));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getAllPosts.Run(request);
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
@@ -85,9 +42,6 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "userId";
-            request.Headers["X-Db-Token"] = "token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
 
             var mockPosts = new List<PostDetails>
             {
@@ -122,10 +76,10 @@ namespace GoRideShare.Tests
             };
 
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>()))
                 .ReturnsAsync((false, JsonSerializer.Serialize(mockPosts)));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getAllPosts.Run(request);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedPosts = Assert.IsAssignableFrom<List<PostDetails>>(okResult.Value);
@@ -137,19 +91,34 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
-            request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
 
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>()))
                 .ReturnsAsync((true, "[]"));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getAllPosts.Run(request);
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
             Assert.Equal("Error connecting to the DB layer.", objectResult.Value);
         }
+
+        [Fact]
+        public async Task Run_ValidRequest_InternalServerError_ReturnsErrorResponse()
+        {
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+
+            _httpRequestHandlerMock
+                .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>()))
+                .ReturnsAsync((true, "Internal Server Error")); // Simulating a 500 error
+
+            var result = await _getAllPosts.Run(request);
+
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.Equal("Error connecting to the DB layer.", objectResult.Value);
+        }
+
     }
 }
