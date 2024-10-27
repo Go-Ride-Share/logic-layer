@@ -65,6 +65,18 @@ namespace GoRideShare
             {
                 var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);
                 // Validation
+                if (dbResponseData == null || string.IsNullOrWhiteSpace(dbResponseData.ConversationId) ||
+                    dbResponseData.Messages == null ||
+                    dbResponseData.Messages.Count == 0 ||
+                    dbResponseData.User == null ||
+                    string.IsNullOrWhiteSpace(dbResponseData.PostId))
+                {
+                    _logger.LogError("Invalid/Incomplete conversation data received from the DB layer.");
+                    return new ObjectResult("Invalid conversation data received from the DB layer.")
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
                 return new OkObjectResult(dbResponseData);
             }
             else
@@ -76,7 +88,7 @@ namespace GoRideShare
                 };
             }
         }
-    
+
         private (bool, string) FakeHttpPostRequest(string endpoint, string body, string? db_token, string userId)
         {
             var messages = new List<Message>();
@@ -85,8 +97,8 @@ namespace GoRideShare
                     timeStamp: DateTime.Now,
                     senderId: userId,
                     contents: "Hello"
-                )       
-            );            
+                )
+            );
             var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
             var response = JsonSerializer.Serialize(
                 new Conversation

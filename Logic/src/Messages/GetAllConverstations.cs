@@ -29,7 +29,7 @@ namespace GoRideShare
             {
                 return validationResult;
             }
-           
+
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/GetAllConversations";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
@@ -37,7 +37,14 @@ namespace GoRideShare
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<List<Conversation>>(response);
-                // Validation
+                if (dbResponseData == null)
+                {
+                    _logger.LogError("Invalid conversations data received from the DB layer.");
+                    return new ObjectResult("Invalid conversations data received from the DB layer.")
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest // Bad Request
+                    };
+                }
                 return new OkObjectResult(dbResponseData);
             }
             else
@@ -49,17 +56,17 @@ namespace GoRideShare
                 };
             }
         }
-    
+
         private (bool, string) FakeHttpGetRequest(string endpoint, string? db_token, string userId)
         {
             var messages = new List<Message>();
             messages.Add(
-                new Message (
+                new Message(
                     timeStamp: DateTime.Now.AddMinutes(-1),
                     senderId: "bbbbb-bbbbbbbbbb-bbbbb",
                     contents: "I would like to join you on the trip!"
-                )       
-            );   
+                )
+            );
             var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
             var conversations = new List<Conversation>();
             conversations.Add(
@@ -70,7 +77,7 @@ namespace GoRideShare
                     messages: messages,
                     postId: "aaaaa-aaaaaaaaaa-aaaaa"
                 )
-            );        
+            );
             var response = JsonSerializer.Serialize(
                 conversations
             );

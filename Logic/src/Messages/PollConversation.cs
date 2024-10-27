@@ -35,7 +35,7 @@ namespace GoRideShare
             {
                 return new BadRequestObjectResult("Missing the following query param: \'conversationId\'");
             }
-            
+
             // Timestamp is an optional parameter to limit the response size
             var endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}";
             if (req.Query.TryGetValue("timeStamp", out var timeStamp))
@@ -49,7 +49,18 @@ namespace GoRideShare
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);
-                // Validation
+                if (dbResponseData == null || string.IsNullOrWhiteSpace(dbResponseData.ConversationId) ||
+                    dbResponseData.Messages == null ||
+                    dbResponseData.Messages.Count == 0 ||
+                    dbResponseData.User == null ||
+                    string.IsNullOrWhiteSpace(dbResponseData.PostId))
+                {
+                    _logger.LogError("Invalid/Incomplete conversation data received from the DB layer.");
+                    return new ObjectResult("Invalid conversation data received from the DB layer.")
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
                 return new OkObjectResult(dbResponseData);
             }
             else
@@ -61,23 +72,23 @@ namespace GoRideShare
                 };
             }
         }
-    
+
         private (bool, string) FakeHttpGetRequest(string endpoint, string? db_token, string userId)
         {
             var messages = new List<Message>();
             messages.Add(
-                new Message (
+                new Message(
                     timeStamp: DateTime.Now.AddMinutes(-1),
                     senderId: "bbbbb-bbbbbbbbbb-bbbbb",
                     contents: "Hello"
-                )       
-            );            
+                )
+            );
             messages.Add(
-                new Message (
+                new Message(
                     timeStamp: DateTime.Now,
                     senderId: "bbbbb-bbbbbbbbbb-bbbbb",
                     contents: "I would like to join you on the trip!"
-                )       
+                )
             );
             var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
             var response = JsonSerializer.Serialize(
