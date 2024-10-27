@@ -60,7 +60,6 @@ namespace GoRideShare
             var endpoint = $"{_baseApiUrl}/api/CreateConversation";
             string body = JsonSerializer.Serialize(conversation);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
-            (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);
@@ -75,29 +74,6 @@ namespace GoRideShare
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
-        }
-    
-        private (bool, string) FakeHttpPostRequest(string endpoint, string body, string? db_token, string userId)
-        {
-            var messages = new List<Message>();
-            messages.Add(
-                new Message(
-                    timeStamp: DateTime.Now,
-                    senderId: userId,
-                    contents: "Hello"
-                )       
-            );            
-            var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
-            var response = JsonSerializer.Serialize(
-                new Conversation
-                (
-                    user: user,
-                    conversationId: "ccccc-cccccccccc-ccccc",
-                    messages: messages,
-                    postId: "aaaaa-aaaaaaaaaa-aaaaa"
-                )
-            );
-            return (false, response);
         }
     }
 }
