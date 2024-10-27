@@ -83,19 +83,19 @@ namespace GoRideShare
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("Profile")]
-        public string Profile { get; set; }
+        [JsonPropertyName("photo")]
+        public string Photo { get; set; }
         
         public User
         (
             string userId,
             string name,
-            string profile
+            string photo
         )
         {
             UserId = userId;
             Name = name;
-            Profile = profile;
+            Photo = photo;
         }
     }
 
@@ -113,7 +113,6 @@ namespace GoRideShare
         [JsonPropertyName("user")]
         public User User { get; set; }
 
-        [JsonRequired]
         [JsonPropertyName("postId")]
         public string PostId { get; set; }
 
