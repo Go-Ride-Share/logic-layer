@@ -42,7 +42,7 @@ namespace GoRideShare
                     _logger.LogError("Invalid conversations data received from the DB layer.");
                     return new ObjectResult("Invalid conversations data received from the DB layer.")
                     {
-                        StatusCode = StatusCodes.Status400BadRequest // Bad Request
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
                 return new OkObjectResult(dbResponseData);

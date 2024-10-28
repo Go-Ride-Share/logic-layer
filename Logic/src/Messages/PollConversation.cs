@@ -52,8 +52,7 @@ namespace GoRideShare
                 if (dbResponseData == null || string.IsNullOrWhiteSpace(dbResponseData.ConversationId) ||
                     dbResponseData.Messages == null ||
                     dbResponseData.Messages.Count == 0 ||
-                    dbResponseData.User == null ||
-                    string.IsNullOrWhiteSpace(dbResponseData.PostId))
+                    dbResponseData.User == null)
                 {
                     _logger.LogError("Invalid/Incomplete conversation data received from the DB layer.");
                     return new ObjectResult("Invalid conversation data received from the DB layer.")
