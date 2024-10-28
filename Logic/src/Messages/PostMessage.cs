@@ -68,8 +68,8 @@ namespace GoRideShare
                 string? id = dbResponseData?.Id;
                 if (string.IsNullOrEmpty(id))
                 {
-                    _logger.LogError("Message ID not found in the response from the DB layer.");
-                    return new ObjectResult("Message ID not found in the response from the DB layer.")
+                    _logger.LogError("Conversation ID not returned in the response from the DB layer.");
+                    return new ObjectResult("Conversation ID not returned in the response from the DB layer.")
                     {
                         StatusCode = StatusCodes.Status500InternalServerError
                     };

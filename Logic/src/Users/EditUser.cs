@@ -9,12 +9,19 @@ using System.Text;
 
 namespace GoRideShare
 {
-    public class EditUser(ILogger<EditUser> logger)
+    public class EditUser
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private readonly ILogger<EditUser> _logger = logger;
+        private readonly IHttpRequestHandler _httpRequestHandler;
+        private readonly ILogger<EditUser> _logger;
         // Base URL for the API (retrieved from environment variables)
-        private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        private readonly string? _baseApiUrl;
+
+        public EditUser(ILogger<EditUser> logger, IHttpRequestHandler httpRequestHandler)
+        {
+             _httpRequestHandler = httpRequestHandler;
+            _logger = logger;
+            _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
+        }
 
         [Function("EditUser")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
@@ -33,38 +40,26 @@ namespace GoRideShare
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/EditUser");
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", db_token);
-            requestMessage.Headers.Add("X-User-ID", userId.ToString());
-
-            // Set the request content
-            requestMessage.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-
-            try
+            var endpoint = $"{_baseApiUrl}/api/EditUser";
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, requestBody, db_token, userId.ToString());
+            if (!error)
             {
-                // Send the request to the database layer
-                var response = await _httpClient.SendAsync(requestMessage);
-
-                // Check if the response is successful
-                if (response.IsSuccessStatusCode)
-                {
-                    return new OkObjectResult(new { message = "User updated successfully" });
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return new NotFoundResult();
-                }
-                else
-                {
-                    _logger.LogError($"Error fetching user data from database layer: {response.ReasonPhrase}");
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+                return new OkObjectResult(new { message = "User updated successfully" });
             }
-            catch (HttpRequestException ex)
+            else
             {
-                _logger.LogError($"HTTP request error: {ex.Message}");
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                if (response.Equals("404: Not Found"))
+                {
+                    return new NotFoundObjectResult("User not found in the database!");
+                }
+                else if (response.Equals("400: Bad Request"))
+                {
+                    return new BadRequestObjectResult(response);
+                }
+                return new ObjectResult("Error connecting to the DB layer.")
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
         }
     }

@@ -29,14 +29,21 @@ namespace GoRideShare
             {
                 return validationResult;
             }
-           
+
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/GetAllConversations";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<List<Conversation>>(response);
-                // Validation
+                if (dbResponseData == null)
+                {
+                    _logger.LogError("Invalid conversations data received from the DB layer.");
+                    return new ObjectResult("Invalid conversations data received from the DB layer.")
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
                 return new OkObjectResult(dbResponseData);
             }
             else
