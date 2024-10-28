@@ -50,7 +50,6 @@ namespace GoRideShare
                 var dbResponseData = JsonSerializer.Deserialize<Conversation>(response);
                 if (dbResponseData == null || string.IsNullOrWhiteSpace(dbResponseData.ConversationId) ||
                     dbResponseData.Messages == null ||
-                    dbResponseData.Messages.Count == 0 ||
                     dbResponseData.User == null)
                 {
                     _logger.LogError("Invalid/Incomplete conversation data received from the DB layer.");
