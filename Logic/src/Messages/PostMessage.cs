@@ -61,7 +61,6 @@ namespace GoRideShare
             var endpoint = $"{_baseApiUrl}/api/PostMessage";
             string body = JsonSerializer.Serialize(message);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
-            (error, response) = FakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
@@ -86,17 +85,6 @@ namespace GoRideShare
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
-        }
-    
-        private (bool, string) FakeHttpPostRequest(string endpoint, string body, string? db_token, string userId)
-        {
-            var response = JsonSerializer.Serialize(
-                new DbLayerResponse
-                {
-                    Id = "31hft1-fukeqe2yeu1y8-sga1e2",
-                }
-            );
-            return (false, response);
         }
     }
 }

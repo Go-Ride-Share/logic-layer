@@ -33,7 +33,6 @@ namespace GoRideShare
             // Create the HttpRequestMessage and add the db_token to the Authorization header
             var endpoint = $"{_baseApiUrl}/api/GetAllConversations";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
-            (error, response) = FakeHttpGetRequest(endpoint, db_token, userId.ToString());
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<List<Conversation>>(response);
@@ -55,33 +54,6 @@ namespace GoRideShare
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
-        }
-
-        private (bool, string) FakeHttpGetRequest(string endpoint, string? db_token, string userId)
-        {
-            var messages = new List<Message>();
-            messages.Add(
-                new Message(
-                    timeStamp: DateTime.Now.AddMinutes(-1),
-                    senderId: "bbbbb-bbbbbbbbbb-bbbbb",
-                    contents: "I would like to join you on the trip!"
-                )
-            );
-            var user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage());
-            var conversations = new List<Conversation>();
-            conversations.Add(
-                new Conversation
-                (
-                    user: user,
-                    conversationId: "ccccc-cccccccccc-ccccc",
-                    messages: messages,
-                    postId: "aaaaa-aaaaaaaaaa-aaaaa"
-                )
-            );
-            var response = JsonSerializer.Serialize(
-                conversations
-            );
-            return (false, response);
         }
     }
 }
