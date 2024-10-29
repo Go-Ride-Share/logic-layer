@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text.Json;
-using Xunit;
 
 namespace GoRideShare.Tests
 {
@@ -124,28 +123,28 @@ namespace GoRideShare.Tests
             Assert.Equal(mockResponse.Id, returnedResponse.Id);
         }
 
-        // [Fact]
-        // public async Task Run_ErrorConnectingToDBLayer_ReturnsServerError()
-        // {
-        //     var context = new DefaultHttpContext();
-        //     var request = context.Request;
-        //     request.Headers["X-User-ID"] = "test_user_id";
-        //     request.Headers["X-Db-Token"] = "db-token";
+        [Fact]
+        public async Task Run_ErrorConnectingToDBLayer_ReturnsServerError()
+        {
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+            request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-Db-Token"] = "db-token";
 
-        //     var newMessage = new IncomingMessageRequest("Hello", "test_conversation_id");
-        //     string requestBody = JsonSerializer.Serialize(newMessage);
-        //     context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
+            var newMessage = new IncomingMessageRequest("Hello", "test_conversation_id");
+            string requestBody = JsonSerializer.Serialize(newMessage);
+            context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
 
-        //     // Mock the HTTP request handler to simulate an error response
-        //     _httpRequestHandlerMock
-        //         .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-        //         .ReturnsAsync((true, "Error connecting to DB layer"));
+            // Mock the HTTP request handler to simulate an error response
+            _httpRequestHandlerMock
+                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((true, "Error connecting to DB layer"));
 
-        //     var result = await _postMessage.Run(request);
+            var result = await _postMessage.Run(request);
 
-        //     var objectResult = Assert.IsType<ObjectResult>(result);
-        //     Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-        //     Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value.ToString());
-        // }
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value.ToString());
+        }
     }
 }
