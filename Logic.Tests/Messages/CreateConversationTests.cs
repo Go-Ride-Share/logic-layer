@@ -101,81 +101,81 @@ namespace GoRideShare.Tests
             Assert.Contains("contents cannot be empty", objectResult.Value.ToString()); // Adjust according to your validation logic
         }
 
-        // [Fact]
-        // public async Task Run_ValidRequest_ReturnsOkResponse()
-        // {
-        //     var context = new DefaultHttpContext();
-        //     var request = context.Request;
-        //     context.Request.Headers["X-User-ID"] = "test_user_id";
-        //     request.Headers["X-Db-Token"] = "db-token";
+        [Fact]
+        public async Task Run_ValidRequest_ReturnsOkResponse()
+        {
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+            context.Request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-Db-Token"] = "db-token";
 
-        //     var messages = new List<Message>
-        //     {
-        //         new Message
-        //         (
-        //             timeStamp: DateTime.UtcNow,
-        //             senderId: "userId",
-        //             contents: "Hello, this is a test message."
-        //         )
-        //     };
+            var messages = new List<Message>
+            {
+                new Message
+                (
+                    timeStamp: DateTime.UtcNow,
+                    senderId: "userId",
+                    contents: "Hello, this is a test message."
+                )
+            };
 
-        //     var user = new User
-        //     (
-        //         userId: "userId",
-        //         name: "Test User",
-        //         profile: "test_profile_image.png"
-        //     );
+            var user = new User
+            (
+                userId: "userId",
+                name: "Test User",
+                photo: "test_profile_image.png"
+            );
 
-        //     var conversation = new Conversation
-        //     (
-        //         conversationId: "conversationId",
-        //         user: user,
-        //         messages: messages,
-        //         postId: "test_post_id"
-        //     );
+            var conversation = new Conversation
+            (
+                conversationId: "conversationId",
+                user: user,
+                messages: messages,
+                postId: "test_post_id"
+            );
 
-        //     var mockConversation = JsonSerializer.Serialize(conversation);
+            var mockConversation = JsonSerializer.Serialize(conversation);
 
-        //     var newConversation = new IncomingConversationRequest("Hello, this is a test conversation.", "test_user_id");
-        //     string requestBody = JsonSerializer.Serialize(newConversation);
-        //     context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
+            var newConversation = new IncomingConversationRequest("Hello, this is a test conversation.", "test_user_id");
+            string requestBody = JsonSerializer.Serialize(newConversation);
+            context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
 
-        //     // Mock the HTTP request handler to simulate a successful response
-        //     _httpRequestHandlerMock
-        //         .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-        //         .ReturnsAsync((false, JsonSerializer.Serialize(conversation)));
+            // Mock the HTTP request handler to simulate a successful response
+            _httpRequestHandlerMock
+                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((false, JsonSerializer.Serialize(conversation)));
 
-        //     var result = await _createConversation.Run(request);
+            var result = await _createConversation.Run(request);
 
-        //     var okResult = Assert.IsType<OkObjectResult>(result);
-        //     var returnedConversation = Assert.IsAssignableFrom<Conversation>(okResult.Value);
-        //     Assert.Equal(conversation, returnedConversation);
-        // }
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedConversation = Assert.IsAssignableFrom<Conversation>(okResult.Value);
+            Assert.Equal(mockConversation, JsonSerializer.Serialize(returnedConversation));
+        }
 
-        // [Fact]
-        // public async Task Run_ErrorConnectingToDBLayer_ReturnsServerError()
-        // {
-        //     var context = new DefaultHttpContext();
-        //     var request = context.Request;
-        //     context.Request.Headers["X-User-ID"] = "test_user_id";
-        //     request.Headers["X-Db-Token"] = "db-token";
+        [Fact]
+        public async Task Run_ErrorConnectingToDBLayer_ReturnsServerError()
+        {
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+            context.Request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-Db-Token"] = "db-token";
 
-        //     var newConversation = new IncomingConversationRequest("Hello", "test_user_id");
-        //     string requestBody = JsonSerializer.Serialize(newConversation);
-        //     context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
+            var newConversation = new IncomingConversationRequest("Hello", "test_user_id");
+            string requestBody = JsonSerializer.Serialize(newConversation);
+            context.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(requestBody));
 
-        //     // Mock the HTTP request handler to simulate an error response
-        //     _httpRequestHandlerMock
-        //         .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-        //         .ReturnsAsync((true, "Error connecting to DB layer"));
+            // Mock the HTTP request handler to simulate an error response
+            _httpRequestHandlerMock
+                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((true, "Error connecting to DB layer"));
 
-        //     // Act
-        //     var result = await _createConversation.Run(request);
+            // Act
+            var result = await _createConversation.Run(request);
 
-        //     // Assert
-        //     var objectResult = Assert.IsType<ObjectResult>(result);
-        //     Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-        //     Assert.Contains("Error connecting to the DB layer", objectResult.Value.ToString());
-        // }
+            // Assert
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.Contains("Error connecting to the DB layer", objectResult.Value.ToString());
+        }
     }
 }
