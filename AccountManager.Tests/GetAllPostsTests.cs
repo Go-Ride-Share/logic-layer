@@ -32,9 +32,8 @@ namespace GoRideShare.Tests
 
             var result = await _getAllPosts.Run(request);
 
-            var objectResult = Assert.IsType<ObjectResult>(result);
-            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Equal("No posts found in the response from the DB layer.", objectResult.Value);
+            var objectResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal("[]", objectResult.Value);
         }
 
         [Fact]
