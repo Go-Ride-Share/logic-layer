@@ -61,7 +61,7 @@ namespace GoRideShare.Tests
         }
 
         [Fact]
-        public async Task Run_ValidRequest_NoPostsFound_ReturnsErrorResponse()
+        public async Task Run_ValidRequest_NoPostsFound_ReturnsEmptyResponse()
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
