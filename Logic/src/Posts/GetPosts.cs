@@ -45,11 +45,8 @@ namespace GoRideShare
                 var posts = JsonSerializer.Deserialize<List<PostDetails>>(response);
                 if (posts == null || posts.Count == 0)
                 {
-                    _logger.LogError("No posts found in the response from the DB layer.");
-                    return new ObjectResult("No posts found in the response from the DB layer.")
-                    {
-                        StatusCode = StatusCodes.Status500InternalServerError
-                    };
+                    _logger.LogInformation("No posts found in the response from the DB layer.");
+                    return new OkObjectResult("[]");
                 }
                 return new OkObjectResult(posts);
             }
