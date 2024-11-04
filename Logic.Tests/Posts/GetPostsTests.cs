@@ -34,7 +34,7 @@ namespace GoRideShare.Tests
         }
 
         [Fact]
-        public async Task Run_MissingDbTokenHeader_ReturnsBadRequest()
+        public async Task Run_Missingdb_tokenHeader_ReturnsBadRequest()
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -43,7 +43,7 @@ namespace GoRideShare.Tests
             var result = await _getPosts.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following header 'X-Db-Token'.", badRequestResult.Value);
+            Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace GoRideShare.Tests
         }
 
         [Fact]
-        public async Task Run_ValidRequest_NoPostsFound_ReturnsErrorResponse()
+        public async Task Run_ValidRequest_NoPostsFound_ReturnsEmptyResponse()
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -75,9 +75,8 @@ namespace GoRideShare.Tests
 
             var result = await _getPosts.Run(request);
 
-            var objectResult = Assert.IsType<ObjectResult>(result);
-            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Equal("No posts found in the response from the DB layer.", objectResult.Value);
+            var objectResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal("[]", objectResult.Value);
         }
 
         [Fact]

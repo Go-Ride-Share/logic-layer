@@ -34,7 +34,7 @@ namespace GoRideShare.Tests
         }
 
         [Fact]
-        public async Task Run_MissingDbTokenHeader_ReturnsBadRequest()
+        public async Task Run_Missingdb_tokenHeader_ReturnsBadRequest()
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -43,7 +43,7 @@ namespace GoRideShare.Tests
             var result = await _getUser.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following header 'X-Db-Token'.", badRequestResult.Value);
+            Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
         }
 
         [Fact]
