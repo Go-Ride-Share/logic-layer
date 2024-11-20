@@ -26,19 +26,22 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string user_id, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
             }
             // Read the posterId from the query params
-            if (!req.Query.TryGetValue("userId", out var posterId))
+            if ( user_id != null && !Guid.TryParse(user_id, out Guid _))
             {
-                return new BadRequestObjectResult("Missing the following query param: \'userId\'");
+                _logger.LogError("Invalid Query Parameter: `user_id` must be a Guid");
+                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` must be a Guid");
+            } else {
+                _logger.LogInformation($"user_id: {user_id}");
             }
 
-            string endpoint = $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            string endpoint = $"{_baseApiUrl}/api/posts/{user_id}";
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id.ToString());
 
             if (!error)
             {

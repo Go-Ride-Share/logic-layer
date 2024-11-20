@@ -50,7 +50,7 @@ namespace GoRideShare
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/VerifyLoginCredentials")
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/users/login")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };

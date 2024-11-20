@@ -58,7 +58,7 @@ namespace GoRideShare
             );
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var endpoint = $"{_baseApiUrl}/api/PostMessage";
+            var endpoint = $"{_baseApiUrl}/api/messages";
             string body = JsonSerializer.Serialize(message);
             var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
             if (!error)
