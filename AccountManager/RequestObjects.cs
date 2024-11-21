@@ -14,22 +14,29 @@ namespace GoRideShare
     public class UserRegistrationInfo
     {
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [JsonPropertyName("password")]
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("bio")]
-        public string Bio { get; set; }
+        public string? Bio { get; set; }
 
         [JsonPropertyName("phone")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         [JsonPropertyName("photo")]
         public string? Photo { get; set; }
+
+        [JsonPropertyName("id")]
+        public string? UserId {get; set;}
+
+        [JsonPropertyName("picture")]
+        public string? PhotoUrl {get; set;}
+
     }
 
     public class PostDetails
@@ -102,5 +109,13 @@ namespace GoRideShare
         public string? UserId { get; set; }
         [JsonPropertyName("photo")]
         public string? Photo {get; set;}
+    }
+
+    public class GoogleOAuthResponse
+    {
+        [JsonPropertyName("access_token")]
+        public string? AccessToken {get; set;}
+        [JsonPropertyName("id_token")]
+        public string? IdToken {get; set;}
     }
 }

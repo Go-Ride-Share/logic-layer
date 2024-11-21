@@ -67,7 +67,7 @@ namespace GoRideShare
             }
 
             string body = JsonSerializer.Serialize(newPost);
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId);
             if (!error)
             {
                 var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);

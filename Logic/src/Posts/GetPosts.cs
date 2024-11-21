@@ -38,7 +38,7 @@ namespace GoRideShare
             }
 
             string endpoint = $"{_baseApiUrl}/api/GetPosts?userId={posterId}";
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId);
 
             if (!error)
             {
