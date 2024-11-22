@@ -133,6 +133,71 @@ namespace GoRideShare
         }
     }
 
+    public class  SearchCriteria
+    {
+        [JsonRequired]
+        [JsonPropertyName("originLat")]
+        public required float OriginLat { get; set; }
+
+        [JsonRequired] 
+        [JsonPropertyName("originLng")]
+        public required float OriginLng { get; set; }
+
+        [JsonRequired]        
+        [JsonPropertyName("destinationLat")]
+        public required float DestinationLat { get; set; }
+
+        [JsonRequired]
+        [JsonPropertyName("destinationLng")]
+        public required float DestinationLng { get; set; }
+
+        [JsonPropertyName("pageStart")]
+        public float PageStart { get; set; }
+
+        [JsonPropertyName("pageSize")]
+        public float PageSize { get; set; }
+
+        [JsonRequired]
+        [JsonPropertyName("price")]
+        public float? Price { get; set; }
+
+        [JsonRequired]
+        [JsonPropertyName("departureDate")]
+        public required string DepartureDate { get; set; }
+
+        public SearchCriteria(){}
+
+        public (bool, string) validate()
+        {
+            if (DepartureDate == "")
+            {
+                return (true, "DepartureDate cannot be empty");
+            }
+
+            //
+            //  Parse into the correct Date Format
+            //
+
+            if ( 90 < OriginLat || OriginLat < -90 )
+            {
+                return (true, "OriginLat is Invalid");
+            }
+            if ( 180 < OriginLng || OriginLng < -180 )
+            {
+                return (true, "OriginLat is Invalid");
+            }
+            if ( 180 < OriginLng || OriginLng < -180 )
+            {
+                return (true, "OriginLng is Invalid");
+            }
+            if ( 180 < DestinationLng || DestinationLng < -180 )
+            {
+                return (true, "DestinationLng is Invalid");
+            }            
+            return (false, "");
+        }
+    }
+
     public class DbLayerResponse
     {
         [JsonPropertyName("user_id")]

@@ -25,13 +25,6 @@ namespace GoRideShare
         [Function("FindPost")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Posts/Search")] HttpRequest req)
         {
-            // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string user_id, out string db_token);
-            if (validationResult != null)
-            {
-                return validationResult;
-            }
-            // Read the request body to get the 'Search Criteria'
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             SearchCriteria? searchCriteria;
             try
@@ -45,6 +38,9 @@ namespace GoRideShare
                         _logger.LogError($"Search Criteria are not valid: {errorMessage}");
                         return new BadRequestObjectResult(errorMessage);
                     }
+                    searchCriteria.PageStart = 0;
+                    searchCriteria.PageSize = 20;
+                    requestBody = JsonSerializer.Serialize(searchCriteria);
                 }
                 else
                 {
@@ -60,7 +56,7 @@ namespace GoRideShare
             _logger.LogInformation($"Raw Request Body: {requestBody}");
 
             string endpoint = $"{_baseApiUrl}/api/posts/search";
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, requestBody, db_token, user_id.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, requestBody);
 
             if (!error)
             {
