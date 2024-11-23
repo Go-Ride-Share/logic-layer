@@ -26,77 +26,86 @@ namespace GoRideShare
         [Function("GoogleSignIn")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
-            string authorizationCode = await new StreamReader(req.Body).ReadToEndAsync();
-
-            // Use the authorization code to get the google profile
-            (UserRegistrationInfo? userInfo, string error) = await GetGoogleProfile(authorizationCode);
-            if (userInfo == null)
-            {
-                _logger.LogError($"Could not get google prfile: {error}");
-                return new BadRequestObjectResult(error);
+            try {
+                string authorizationCode = await new StreamReader(req.Body).ReadToEndAsync();
+    
+                // Use the authorization code to get the google profile
+                (UserRegistrationInfo? userInfo, string error) = await GetGoogleProfile(authorizationCode);
+                if (userInfo == null)
+                {
+                    _logger.LogError($"Could not get google profile: {error}");
+                    return new BadRequestObjectResult(error);
+                }
+                // Check if the current user is registered
+                JwtTokenHandler dbTokenHandler = new (Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
+                                                        Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
+                                                        Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
+                                                        Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
+    
+                string dbToken = await dbTokenHandler.GenerateTokenAsync();
+                HttpRequestMessage googleLoginRequest = new(HttpMethod.Post, $"{_baseApiUrl}/api/GoogleLogin");
+                googleLoginRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
+                googleLoginRequest.Content = new StringContent(JsonSerializer.Serialize(userInfo), Encoding.UTF8, "application/json");
+    
+                HttpResponseMessage googleLoginResponseMessage = await _httpClient.SendAsync(googleLoginRequest);
+                int statusCode = (int)googleLoginResponseMessage.StatusCode;
+    
+                string googleLoginResponseContent;
+                if (statusCode == Status409Conflict)
+                {
+                    return new BadRequestObjectResult("Use email and password to log in.");
+                }
+                else if (statusCode == Status401Unauthorized) // Need to register the user
+                {
+                    string createProfileError;
+                    (googleLoginResponseContent, createProfileError) = await CreateProfileFromGoogle(userInfo, dbToken);
+    
+                    if (createProfileError != "")
+                        return new BadRequestObjectResult(createProfileError);
+                }
+                else if(googleLoginResponseMessage.IsSuccessStatusCode)
+                {
+                    googleLoginResponseContent = await googleLoginResponseMessage.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    string loginError = $"Could not log in due to an unexpected error: {googleLoginResponseMessage.StatusCode}";
+                    _logger.LogError(loginError);
+                    return new BadRequestObjectResult(loginError);
+                }
+                
+                DbLayerResponse? googleLoginResponse = JsonSerializer.Deserialize<DbLayerResponse>(googleLoginResponseContent);
+    
+                if (googleLoginResponse == null || string.IsNullOrEmpty(googleLoginResponse.UserId?.Trim()) 
+                    || string.IsNullOrEmpty(googleLoginResponse.Photo?.Trim()))
+                {
+                    string registerUserError = $"Failed to deserialize response when trying to register Google user:{googleLoginResponseContent}";
+                    _logger.LogError(registerUserError);
+                    return new BadRequestObjectResult(registerUserError);
+                }
+    
+                // Get logic token
+                JwtTokenHandler logicTokenHandler = new(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_TENANT_ID"),
+                                                            Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
+                string logicToken = await logicTokenHandler.GenerateTokenAsync();
+    
+                // Succeful return
+                return new OkObjectResult(new {
+                    User_id = googleLoginResponse.UserId,
+                    Logic_token = logicToken,
+                    db_token = dbToken,
+                    Photo = googleLoginResponse.Photo
+                });
+            } catch (Exception e) {
+                string unexpectedError = $"We ran into an unexpected error.";
+                _logger.LogError(e, unexpectedError);
+                return new ObjectResult(unexpectedError + " " + e.Message)
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
-            // Check if the current user is registered
-            JwtTokenHandler dbTokenHandler = new (Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID_DB"),
-                                                    Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET_DB"),
-                                                    Environment.GetEnvironmentVariable("OAUTH_TENANT_ID_DB"),
-                                                    Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
-
-            string dbToken = await dbTokenHandler.GenerateTokenAsync();
-            HttpRequestMessage googleLoginRequest = new(HttpMethod.Post, $"{_baseApiUrl}/api/GoogleLogin");
-            googleLoginRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
-            googleLoginRequest.Content = new StringContent(JsonSerializer.Serialize(userInfo), Encoding.UTF8, "application/json");
-
-            HttpResponseMessage googleLoginResponseMessage = await _httpClient.SendAsync(googleLoginRequest);
-            int statusCode = (int)googleLoginResponseMessage.StatusCode;
-
-            string googleLoginResponseContent;
-            if (statusCode == Status409Conflict)
-            {
-                return new BadRequestObjectResult("Use email and password to log in.");
-            }
-            else if (statusCode == Status401Unauthorized) // Need to register the user
-            {
-                string createProfileError;
-                (googleLoginResponseContent, createProfileError) = await CreateProfileFromGoogle(userInfo, dbToken);
-
-                if (createProfileError != "")
-                    return new BadRequestObjectResult(createProfileError);
-            }
-            else if(googleLoginResponseMessage.IsSuccessStatusCode)
-            {
-                googleLoginResponseContent = await googleLoginResponseMessage.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                string loginError = $"Could not log in due to an unexpected error: {googleLoginResponseMessage.StatusCode}";
-                _logger.LogError(loginError);
-                return new BadRequestObjectResult(loginError);
-            }
-            
-            DbLayerResponse? googleLoginResponse = JsonSerializer.Deserialize<DbLayerResponse>(googleLoginResponseContent);
-
-            if (googleLoginResponse == null || string.IsNullOrEmpty(googleLoginResponse.UserId?.Trim()) 
-                || string.IsNullOrEmpty(googleLoginResponse.Photo?.Trim()))
-            {
-                string registerUserError = $"Failed to deserialize response when trying to register Google user:{googleLoginResponseContent}";
-                _logger.LogError(registerUserError);
-                return new BadRequestObjectResult(registerUserError);
-            }
-
-            // Get logic token
-            JwtTokenHandler logicTokenHandler = new(Environment.GetEnvironmentVariable("OAUTH_CLIENT_ID"),
-                                                        Environment.GetEnvironmentVariable("OAUTH_CLIENT_SECRET"),
-                                                        Environment.GetEnvironmentVariable("OAUTH_TENANT_ID"),
-                                                        Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
-            string logicToken = await logicTokenHandler.GenerateTokenAsync();
-
-            // Succeful return
-            return new OkObjectResult(new {
-                User_id = googleLoginResponse.UserId,
-                Logic_token = logicToken,
-                db_token = dbToken,
-                Photo = googleLoginResponse.Photo
-            });
         }
     
         private async Task<(UserRegistrationInfo? GetUserInfoFromGoogle, string error)> GetGoogleProfile(string authorizationCode) 
@@ -154,7 +163,7 @@ namespace GoRideShare
                 if (userInfo == null || string.IsNullOrEmpty(userInfo.Name?.Trim()) 
                     || string.IsNullOrEmpty(userInfo.Name?.Trim()) || string.IsNullOrEmpty(userInfo.UserId?.Trim()))
                 {
-                    error = "Faield to desirialize user profile or the name, email or id is missing."; 
+                    error = "Faield to deserialize user profile or the name, email or id is missing."; 
                     _logger.LogError(error);
                     return (null, error);
                 }
