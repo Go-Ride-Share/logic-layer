@@ -38,6 +38,9 @@ namespace GoRideShare
                 } else {
                     post_id = post_guid.ToString();
                 }
+            } else {
+                _logger.LogError("Missing Query Parameter: `user_id`");
+                return new BadRequestObjectResult("ERROR: Missing Query Parameter: post_id");
             }
 
             string endpoint = $"{_baseApiUrl}/api/posts/?post_id={post_id}";
