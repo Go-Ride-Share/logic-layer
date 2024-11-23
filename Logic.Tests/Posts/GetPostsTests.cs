@@ -102,7 +102,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 90.12f,
                     DestinationLng = 34.56f,
                     Price = 15.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 },
                 new PostDetails
                 {
@@ -116,7 +117,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 80.21f,
                     DestinationLng = 43.65f,
                     Price = 35.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 }
             };
 
