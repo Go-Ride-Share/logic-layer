@@ -46,32 +46,51 @@ namespace GoRideShare.Tests
             {
                 new PostDetails
                 {
-                    PostId = "test_post_id",
-                    PosterId = "test_poster_id",
+                    PostId = Guid.Parse("09c453af-8065-42b7-9836-947eace8d6aa"),
+                    PosterId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"),
                     Name = "test post 1",
                     Description = "test_desc",
-                    DepartureDate = "2024-10-10",
+                    OriginName = null,
                     OriginLat = 12.34f,
                     OriginLng = 56.78f,
+                    DestinationName = null,
                     DestinationLat = 90.12f,
                     DestinationLng = 34.56f,
                     Price = 15.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    SeatsTaken = null,
+                    DepartureDate = "2024-10-10",
+                    Poster = new User
+                    {
+                        UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"),
+                        Name = "test user",
+                        Photo = null
+                    }
                 },
                 new PostDetails
                 {
-                    PostId = "test_post_id",
-                    PosterId = "test_poster_id",
+                    PostId = Guid.Parse("09c453af-8065-42b7-9836-947eace8d6aa"),
+                    PosterId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"), 
                     Name = "test Post 2",
                     Description = "test_desc",
-                    DepartureDate = "2024-11-11",
+                    OriginName = null,
                     OriginLat = 21.43f,
                     OriginLng = 65.87f,
+                    DestinationName = null,
                     DestinationLat = 80.21f,
                     DestinationLng = 43.65f,
                     Price = 35.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    SeatsTaken = null,
+                    DepartureDate = "2024-11-11",
+                    Poster = new User
+                    {
+                        UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"), 
+                        Name = "test user",  
+                        Photo = null
+                    }
                 }
+
             };
 
             _httpRequestHandlerMock

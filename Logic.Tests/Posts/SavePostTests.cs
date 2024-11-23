@@ -77,9 +77,9 @@ namespace GoRideShare.Tests
                 Description = "test_desc",
                 DepartureDate = "2024-10-10T00:00:00.000",
                 OriginLat = 150,
-                OriginLng = 200,
-                DestinationLat = 120,
-                DestinationLng = -200,
+                OriginLng = 90,
+                DestinationLat = 45,
+                DestinationLng = -180,
                 Price = 12,
                 SeatsAvailable = 1
             };
@@ -90,7 +90,7 @@ namespace GoRideShare.Tests
             var result = await _savePost.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Invalid post data.", badRequestResult.Value);
+            Assert.Equal("OriginLat is Invalid", badRequestResult.Value);
         }
 
         [Fact]

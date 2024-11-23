@@ -63,7 +63,7 @@ namespace GoRideShare.Tests
 
             // Mock the HTTP request handler to simulate a successful response
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpPatchRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, JsonSerializer.Serialize(new { Message = "Updated Successfully" })));
 
 
@@ -85,7 +85,7 @@ namespace GoRideShare.Tests
 
             // Mock the HTTP request handler to simulate a not found response
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpPatchRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "404: Not Found"));
 
             var result = await _editUser.Run(request);
@@ -106,7 +106,7 @@ namespace GoRideShare.Tests
 
             // Mock the HTTP request handler to simulate a not found response
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpPatchRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "400: Bad Request"));
 
             var result = await _editUser.Run(request);
@@ -127,7 +127,7 @@ namespace GoRideShare.Tests
 
             // Mock the HTTP request handler to simulate an error response
             _httpRequestHandlerMock
-                .Setup(m => m.MakeHttpPostRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.MakeHttpPatchRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "Error connecting to DB layer"));
 
             var result = await _editUser.Run(request);
