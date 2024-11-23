@@ -57,7 +57,7 @@ namespace GoRideShare.Tests
             var result = await _getPosts.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following query param: 'userId'", badRequestResult.Value);
+            Assert.Equal("Invalid Query Parameter: `user_id` must be a Guid", badRequestResult.Value);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
             request.QueryString = new QueryString("?userId=<test-user-id>");
 
@@ -84,7 +84,7 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "userId";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "token";
             request.QueryString = new QueryString("?userId=<test-user-id>");
 
@@ -102,7 +102,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 90.12f,
                     DestinationLng = 34.56f,
                     Price = 15.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 },
                 new PostDetails
                 {
@@ -116,7 +117,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 80.21f,
                     DestinationLng = 43.65f,
                     Price = 35.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 }
             };
 
@@ -136,7 +138,7 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
             request.QueryString = new QueryString("?userId=<test-user-id>");
 

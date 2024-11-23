@@ -40,8 +40,8 @@ namespace GoRideShare
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            var endpoint = $"{_baseApiUrl}/api/EditUser";
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, requestBody, db_token, userId.ToString());
+            var endpoint = $"{_baseApiUrl}/api/users";
+            var (error, response) = await _httpRequestHandler.MakeHttpPatchRequest(endpoint, requestBody, db_token, userId.ToString());
             if (!error)
             {
                 return new OkObjectResult(new { message = "User updated successfully" });
