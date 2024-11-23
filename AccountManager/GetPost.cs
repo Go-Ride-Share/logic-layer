@@ -28,19 +28,19 @@ namespace GoRideShare
 
             // Read the posterId from the query params
             string? post_id = null;
-            if (req.Query.TryGetValue("post_id", out StringValues postIdParam))
+            if (req.Query.TryGetValue("postId", out StringValues postIdParam))
             {
                 Guid post_guid = Guid.Empty;
                 if (!Guid.TryParse(postIdParam[0], out post_guid))
                 {
-                    _logger.LogError("Invalid post_id query param");
-                    return new BadRequestObjectResult("ERROR: Invalid Query Parameter: post_id");
+                    _logger.LogError("Invalid postId query param");
+                    return new BadRequestObjectResult("ERROR: Invalid Query Parameter: postId");
                 } else {
                     post_id = post_guid.ToString();
                 }
             } else {
-                _logger.LogError("Missing Query Parameter: `user_id`");
-                return new BadRequestObjectResult("ERROR: Missing Query Parameter: post_id");
+                _logger.LogError("Missing Query Parameter: `postId`");
+                return new BadRequestObjectResult("ERROR: Missing Query Parameter: postId");
             }
 
             string endpoint = $"{_baseApiUrl}/api/posts/?post_id={post_id}";
