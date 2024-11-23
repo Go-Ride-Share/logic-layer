@@ -60,6 +60,7 @@ namespace GoRideShare.Tests
                     SeatsAvailable = 2,
                     SeatsTaken = null,
                     DepartureDate = "2024-10-10",
+                    CreatedAt = DateTime.Parse("2024-10-10"),
                     Poster = new User
                     {
                         UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"),
@@ -83,6 +84,7 @@ namespace GoRideShare.Tests
                     SeatsAvailable = 2,
                     SeatsTaken = null,
                     DepartureDate = "2024-11-11",
+                    CreatedAt = DateTime.Parse("2024-10-10"),
                     Poster = new User
                     {
                         UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"), 
