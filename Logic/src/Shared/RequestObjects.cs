@@ -58,9 +58,8 @@ namespace GoRideShare
         [JsonPropertyName("departureDate")]
         public required string DepartureDate { get; set; }
         
-        [JsonRequired]
         [JsonPropertyName("createdAt")]
-        public required DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public PostDetails(){}
 
