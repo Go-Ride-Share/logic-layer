@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Primitives;
 
 namespace GoRideShare
 {
@@ -22,30 +23,35 @@ namespace GoRideShare
 
         // This function is triggered by an HTTP GET request to retrieve a single post
         [Function("GetPost")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{post_id?}")] HttpRequest req, string? post_id)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts")] HttpRequest req)
         {
 
             // Read the posterId from the query params
-            if ( post_id != null && !Guid.TryParse(post_id, out Guid _))
+            string? post_id = null;
+            if (req.Query.TryGetValue("post_id", out StringValues postIdParam))
             {
-                _logger.LogError("Invalid Query Parameter: `post_id` must be a Guid");
-                return new BadRequestObjectResult("Invalid Query Parameter: `post_id` must be a Guid");
-            } else {
-                _logger.LogInformation($"post_id: {post_id}");
+                Guid post_guid = Guid.Empty;
+                if (!Guid.TryParse(postIdParam[0], out post_guid))
+                {
+                    _logger.LogError("Invalid post_id query param");
+                    return new BadRequestObjectResult("ERROR: Invalid Query Parameter: post_id");
+                } else {
+                    post_id = post_guid.ToString();
+                }
             }
 
-            string endpoint = $"{_baseApiUrl}/api/post/{post_id}";
+            string endpoint = $"{_baseApiUrl}/api/posts/?post_id={post_id}";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint);
 
             if (!error)
             {
-                var post = JsonSerializer.Deserialize<PostDetails>(response);
-                if (post == null)
+                List<PostDetails> posts_list = JsonSerializer.Deserialize<List<PostDetails>>(response);
+                if (posts_list == null || posts_list.Count != 1)
                 {
-                    _logger.LogError("Error fetching post");
+                    _logger.LogError($"Error fetching post");
                     return new OkObjectResult("{}");
                 }
-                return new OkObjectResult(post);
+                return new OkObjectResult(posts_list[0]);
             }
             else
             {
