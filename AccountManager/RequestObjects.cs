@@ -33,10 +33,10 @@ namespace GoRideShare
     }
 
     public class PostDetails
-    {   
+    {
         [JsonPropertyName("postId")]
         public Guid? PostId { get; set; }
-        
+
         [JsonRequired]
         [JsonPropertyName("posterId")]
         public required Guid PosterId { get; set; }
@@ -63,7 +63,7 @@ namespace GoRideShare
         [JsonPropertyName("destinationName")]
         public string? DestinationName { get; set; }
 
-        [JsonRequired]        
+        [JsonRequired]
         [JsonPropertyName("destinationLat")]
         public required float DestinationLat { get; set; }
 
@@ -94,7 +94,7 @@ namespace GoRideShare
         [JsonPropertyName("user")]
         public required User Poster { get; set; }
 
-        public PostDetails(){}
+        public PostDetails() { }
 
         public (bool, string) validate()
         {
@@ -110,25 +110,25 @@ namespace GoRideShare
             {
                 return (true, "Name cannot be empty");
             }
-            if ( 90 < OriginLat || OriginLat < -90 )
+            if (90 < OriginLat || OriginLat < -90)
             {
                 return (true, "OriginLat is Invalid");
             }
-            if ( 180 < OriginLng || OriginLng < -180 )
+            if (180 < OriginLng || OriginLng < -180)
             {
                 return (true, "OriginLat is Invalid");
             }
-            if ( 180 < OriginLng || OriginLng < -180 )
+            if (180 < OriginLng || OriginLng < -180)
             {
                 return (true, "OriginLng is Invalid");
             }
-            if ( 180 < DestinationLng || DestinationLng < -180 )
+            if (180 < DestinationLng || DestinationLng < -180)
             {
                 return (true, "DestinationLng is Invalid");
             }
-        
+
             var (error, response) = Poster.validate();
-            if ( error )
+            if (error)
             {
                 return (error, response);
             }
@@ -137,17 +137,17 @@ namespace GoRideShare
         }
     }
 
-    public class  SearchCriteria
+    public class SearchCriteria
     {
         [JsonRequired]
         [JsonPropertyName("originLat")]
         public required float OriginLat { get; set; }
 
-        [JsonRequired] 
+        [JsonRequired]
         [JsonPropertyName("originLng")]
         public required float OriginLng { get; set; }
 
-        [JsonRequired]        
+        [JsonRequired]
         [JsonPropertyName("destinationLat")]
         public required float DestinationLat { get; set; }
 
@@ -161,43 +161,55 @@ namespace GoRideShare
         [JsonPropertyName("pageSize")]
         public float PageSize { get; set; }
 
-        [JsonRequired]
         [JsonPropertyName("price")]
         public float? Price { get; set; }
 
-        [JsonRequired]
-        [JsonPropertyName("departureDate")]
-        public required string DepartureDate { get; set; }
+        [JsonPropertyName("numSeats")]
+        public int? NumSeats { get; set; }
 
-        public SearchCriteria(){}
+        [JsonPropertyName("departureDate")]
+        public string? DepartureDate { get; set; }
+
+        public SearchCriteria() { }
 
         public (bool, string) validate()
         {
-            if (DepartureDate == "")
+            if (DepartureDate != null)
             {
-                return (true, "DepartureDate cannot be empty");
+                if (DepartureDate == "")
+                {
+                    return (true, "DepartureDate cannot be empty");
+                }
+
+                string dateFormat = "yyyy-MM-ddTHH:mm:ss.fffZ"; // ISO 8601 format
+                if (!DateTimeOffset.TryParseExact(
+                        DepartureDate,
+                        dateFormat,
+                        null,
+                        System.Globalization.DateTimeStyles.AssumeUniversal,
+                        out DateTimeOffset result
+                ))
+                {
+                    return (true, "DepartureDate uses an Incorrect format; \n Instead use: yyyy-MM-ddTHH:mm:ss.fffZ (ISO 8601 format)");
+                }
             }
 
-            //
-            //  Parse into the correct Date Format
-            //
-
-            if ( 90 < OriginLat || OriginLat < -90 )
+            if (90 < OriginLat || OriginLat < -90)
             {
                 return (true, "OriginLat is Invalid");
             }
-            if ( 180 < OriginLng || OriginLng < -180 )
+            if (180 < OriginLng || OriginLng < -180)
             {
                 return (true, "OriginLat is Invalid");
             }
-            if ( 180 < OriginLng || OriginLng < -180 )
+            if (180 < OriginLng || OriginLng < -180)
             {
                 return (true, "OriginLng is Invalid");
             }
-            if ( 180 < DestinationLng || DestinationLng < -180 )
+            if (180 < DestinationLng || DestinationLng < -180)
             {
                 return (true, "DestinationLng is Invalid");
-            }            
+            }
             return (false, "");
         }
     }
@@ -207,11 +219,11 @@ namespace GoRideShare
         [JsonPropertyName("user_id")]
         public string? UserId { get; set; }
         [JsonPropertyName("photo")]
-        public string? Photo {get; set;}
+        public string? Photo { get; set; }
     }
 
     public class User
-    {          
+    {
         [JsonPropertyName("userId")]
         public Guid? UserId { get; set; }
 
@@ -220,9 +232,9 @@ namespace GoRideShare
         public string Name { get; set; }
 
         [JsonPropertyName("photo")]
-        public string? Photo  { get; set; }
+        public string? Photo { get; set; }
 
-        public User(){}
+        public User() { }
 
         public User
         (
@@ -235,14 +247,14 @@ namespace GoRideShare
             Name = name;
             Photo = photo;
         }
-        
+
         public (bool, string) validate()
         {
-            if ( Name == "")
+            if (Name == "")
             {
                 return (true, "name cannot be empty");
             }
-            if ( Photo == "")
+            if (Photo == "")
             {
                 return (true, "photo cannot be empty");
             }
