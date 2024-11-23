@@ -48,14 +48,11 @@ namespace GoRideShare
             {
                 return new BadRequestObjectResult("Incomplete post data.");
             }
-            else if (string.IsNullOrEmpty(newPost.Name) ||
-                string.IsNullOrEmpty(newPost.Description) ||
-                90 < newPost.OriginLat || newPost.OriginLat < -90 ||
-                90 < newPost.DestinationLat || newPost.DestinationLat < -90 ||
-                180 < newPost.OriginLng || newPost.OriginLng < -180 ||
-                180 < newPost.DestinationLng || newPost.DestinationLng < -180)
+            var (invalid, errorMessage) = newPost.validate();
+            if (invalid)
             {
-                return new BadRequestObjectResult("Invalid post data.");
+                _logger.LogError($"PostDetails are not valid: {errorMessage}");
+                return new BadRequestObjectResult(errorMessage);
             }
             newPost.PosterId = userId;
 
@@ -63,7 +60,7 @@ namespace GoRideShare
             var endpoint = $"{_baseApiUrl}/api/UpdatePost";
             if (string.IsNullOrEmpty(newPost.PostId))
             {   // Create the post if there is no ID
-                endpoint = $"{_baseApiUrl}/api/CreatePost";
+                endpoint = $"{_baseApiUrl}/api/posts";
             }
 
             string body = JsonSerializer.Serialize(newPost);

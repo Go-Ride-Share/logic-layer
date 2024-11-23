@@ -50,7 +50,7 @@ namespace GoRideShare
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
             // Send request to db
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/users")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };

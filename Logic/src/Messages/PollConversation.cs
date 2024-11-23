@@ -37,10 +37,10 @@ namespace GoRideShare
             }
 
             // Timestamp is an optional parameter to limit the response size
-            var endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}";
+            var endpoint = $"{_baseApiUrl}/api/messages/{conversationId}";
             if (req.Query.TryGetValue("timeStamp", out var timeStamp))
             {
-                endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}&timeStamp={timeStamp}";
+                endpoint = $"{_baseApiUrl}/api/messages/{conversationId}?timeStamp={timeStamp}";
             }
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header

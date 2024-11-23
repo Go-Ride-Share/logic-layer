@@ -25,7 +25,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
 
-            string endpoint = $"{_baseApiUrl}/api/GetAllPosts";
+            string endpoint = $"{_baseApiUrl}/api/Posts";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint);
 
             if (!error)

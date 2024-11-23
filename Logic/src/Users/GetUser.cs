@@ -32,7 +32,8 @@ namespace GoRideShare
                 return validationResult;
             }
 
-            string endpoint = $"{_baseApiUrl}/api/GetUser";
+            string endpoint = $"{_baseApiUrl}/api/users/{userId}";
+            _logger.LogInformation($"Endpoint: {endpoint}");
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
 
             if (!error)
