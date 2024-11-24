@@ -57,37 +57,65 @@ namespace GoRideShare
             newPost.PosterId = userId;
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var endpoint = $"{_baseApiUrl}/api/UpdatePost";
+            var endpoint = $"{_baseApiUrl}/api/posts";
             if (string.IsNullOrEmpty(newPost.PostId))
-            {   // Create the post if there is no ID
-                endpoint = $"{_baseApiUrl}/api/posts";
-            }
-
-            string body = JsonSerializer.Serialize(newPost);
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId);
-            if (!error)
-            {
-                var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
-
-                string? id = dbResponseData?.Id;
-                if (string.IsNullOrEmpty(id))
+            {   
+                string body = JsonSerializer.Serialize(newPost);
+                var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, body, db_token, userId);
+                if (!error)
                 {
-                    _logger.LogError("Post ID not found in the response from the DB layer.");
-                    return new ObjectResult("Post ID not found in the response from the DB layer.")
+                    var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
+                    string? id = dbResponseData?.Id;
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        _logger.LogError("Post ID not found in the response from the DB layer.");
+                        return new ObjectResult("Post ID not found in the response from the DB layer.")
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError
+                        };
+                    }
+                  
+                    return new OkObjectResult(response);
+                }
+                else
+                {
+                    return new ObjectResult("Error connecting to the DB layer: " + response)
                     {
                         StatusCode = StatusCodes.Status500InternalServerError
                     };
                 }
-
-                return new OkObjectResult(response);
-            }
+            } 
             else
             {
-                return new ObjectResult("Error connecting to the DB layer: " + response)
+                endpoint += "/" + newPost.PostId;
+                string body = JsonSerializer.Serialize(newPost);
+                var (error, response) = await _httpRequestHandler.MakeHttpPatchRequest(endpoint, body, db_token, userId.ToString());
+                if (!error)
                 {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                    var dbResponseData = JsonSerializer.Deserialize<DbLayerResponse>(response);
+
+                    string? id = dbResponseData?.Id;
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        _logger.LogError("Post ID not found in the response from the DB layer.");
+                        return new ObjectResult("Post ID not found in the response from the DB layer.")
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError
+                        };
+                    }
+
+                    return new OkObjectResult(response);
+                }
+                else
+                {
+                    return new ObjectResult("Error connecting to the DB layer: " + response)
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
+                }
             }
+
+
         }
     }
 }
