@@ -20,8 +20,8 @@ namespace GoRideShare
         }
 
         // This function is triggered by an HTTP POST request to create a new post
-        [Function("CreateConversation")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        [Function("ConversationsPost")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Conversations")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
