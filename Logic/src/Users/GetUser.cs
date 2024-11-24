@@ -22,8 +22,8 @@ namespace GoRideShare
         }
 
         // This function is triggered by an HTTP GET request to retrieve user information
-        [Function("GetUser")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        [Function("UserGet")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Users/{user_id}")] HttpRequest req, string? user_id)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
@@ -32,9 +32,17 @@ namespace GoRideShare
                 return validationResult;
             }
 
+            if ( user_id != null && !Guid.TryParse(user_id, out Guid _))
+            {
+                _logger.LogError("Invalid Query Parameter: `user_id` must be a Guid");
+                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` must be a Guid");
+            } else {
+                _logger.LogInformation($"user_id: {user_id}");
+            }
+
             string endpoint = $"{_baseApiUrl}/api/users/{userId}";
             _logger.LogInformation($"Endpoint: {endpoint}");
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, userId.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id.ToString());
 
             if (!error)
             {

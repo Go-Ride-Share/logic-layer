@@ -22,7 +22,7 @@ namespace GoRideShare
         }
 
         // This function is triggered by an HTTP GET request to retrive a users posts
-        [Function("FindPost")]
+        [Function("PostsSearch")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Posts/Search")] HttpRequest req)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();

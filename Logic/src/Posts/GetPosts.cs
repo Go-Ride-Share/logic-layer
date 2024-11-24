@@ -22,11 +22,11 @@ namespace GoRideShare
         }
 
         // This function is triggered by an HTTP GET request to retrive a users posts
-        [Function("GetPosts")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        [Function("PostsGet")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{user_id}")] HttpRequest req, string user_id)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string user_id, out string db_token);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;

@@ -8,16 +8,16 @@ using System.Text.Json;
 namespace GoRideShare
 {
     // This class handles the login verification process for users
-    public class VerifyLoginCredentials(ILogger<VerifyLoginCredentials> logger)
+    public class LoginUser(ILogger<LoginUser> logger)
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private readonly ILogger<VerifyLoginCredentials> _logger = logger;
+        private readonly ILogger<LoginUser> _logger = logger;
         // Base URL for the API (retrieved from environment variables)
         private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
 
         // This function is triggered by an HTTP POST request to verify login credentials
-        [Function("VerifyLoginCredentials")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        [Function("UserLogin")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users/Login")] HttpRequest req)
         {
             // Read the request body to get the user's login data (email and password hash)
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();

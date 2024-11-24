@@ -23,8 +23,8 @@ namespace GoRideShare
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
 
-        [Function("EditUser")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        [Function("UserEdit")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
