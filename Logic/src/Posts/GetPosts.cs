@@ -32,7 +32,7 @@ namespace GoRideShare
                 return validationResult;
             }
             // Read the posterId from the query params
-            if ( postUserId != null)
+            if (string.IsNullOrEmpty(postUserId?.Trim()))
             {
                 _logger.LogError("Invalid Query Parameter: `user_id` not passed");
                 return new BadRequestObjectResult("Invalid Query Parameter: `user_id` not passed");

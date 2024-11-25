@@ -32,17 +32,17 @@ namespace GoRideShare
                 return validationResult;
             }
 
-            if ( user_id != null && !Guid.TryParse(user_id, out Guid _))
+            if (string.IsNullOrEmpty(user_id?.Trim()))
             {
-                _logger.LogError("Invalid Query Parameter: `user_id` must be a Guid");
-                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` must be a Guid");
+                _logger.LogError("Invalid Query Parameter: `user_id` not passed");
+                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` not passed");
             } else {
                 _logger.LogInformation($"user_id: {user_id}");
             }
 
             string endpoint = $"{_baseApiUrl}/api/users/{userId}";
             _logger.LogInformation($"Endpoint: {endpoint}");
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id.ToString());
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id);
 
             if (!error)
             {
