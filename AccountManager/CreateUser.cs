@@ -35,8 +35,7 @@ namespace GoRideShare
 
             // Validate if essential user data is present
             if (userData == null || string.IsNullOrEmpty(userData.Email) ||
-            string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash)
-            || string.IsNullOrEmpty(userData.PhoneNumber))
+            string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash))
             {
                 _logger.LogError("Incomplete user data.");
                 return new BadRequestObjectResult("Incomplete user data.");

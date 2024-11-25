@@ -30,6 +30,20 @@ namespace GoRideShare
 
         [JsonPropertyName("photo")]
         public string? Photo { get; set; }
+
+        [JsonPropertyName("id")]
+        public string? UserId {get; set;}
+
+        [JsonPropertyName("picture")]
+        public string? PhotoUrl {get; set;}
+    }
+
+     public class GoogleOAuthResponse
+    {
+        [JsonPropertyName("access_token")]
+        public string? AccessToken {get; set;}
+        [JsonPropertyName("id_token")]
+        public string? IdToken {get; set;}
     }
 
     public class PostDetails

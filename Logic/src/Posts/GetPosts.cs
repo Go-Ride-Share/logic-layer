@@ -23,25 +23,25 @@ namespace GoRideShare
 
         // This function is triggered by an HTTP GET request to retrive a users posts
         [Function("PostsGet")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{user_id}")] HttpRequest req, string user_id)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{user_id}")] HttpRequest req, string postUserId)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
+            var validationResult = Utilities.ValidateHeaders(req.Headers, out string requsterUserId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
             }
             // Read the posterId from the query params
-            if ( user_id != null && !Guid.TryParse(user_id, out Guid _))
+            if ( postUserId != null)
             {
-                _logger.LogError("Invalid Query Parameter: `user_id` must be a Guid");
-                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` must be a Guid");
+                _logger.LogError("Invalid Query Parameter: `user_id` not passed");
+                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` not passed");
             } else {
-                _logger.LogInformation($"user_id: {user_id}");
+                _logger.LogInformation($"user_id: {postUserId}");
             }
 
-            string endpoint = $"{_baseApiUrl}/api/posts/{user_id}";
-            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id.ToString());
+            string endpoint = $"{_baseApiUrl}/api/posts/{postUserId}";
+            var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, requsterUserId);
 
             if (!error)
             {
