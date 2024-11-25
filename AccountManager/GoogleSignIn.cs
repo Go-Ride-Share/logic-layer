@@ -18,13 +18,16 @@ namespace GoRideShare
         private const int Status409Conflict = 409;
         private const int Status401Unauthorized = 401;
 
+        private const string GOOGLE_LOGIN_API = "api/Users/GoogleLogin";
+        private const string GOOGLE_SINGUP_API = "api/Users";
+
         public GoogleSignIn(ILogger<GoogleSignIn> logger)
         {
             _logger = logger;
         }
 
         [Function("GoogleSignIn")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GoogleLogin"),] HttpRequest req)
         {
             try {
                 string authorizationCode = await new StreamReader(req.Body).ReadToEndAsync();
@@ -43,7 +46,7 @@ namespace GoRideShare
                                                         Environment.GetEnvironmentVariable("OAUTH_SCOPE_DB"));
     
                 string dbToken = await dbTokenHandler.GenerateTokenAsync();
-                HttpRequestMessage googleLoginRequest = new(HttpMethod.Post, $"{_baseApiUrl}/api/GoogleLogin");
+                HttpRequestMessage googleLoginRequest = new(HttpMethod.Post, $"{_baseApiUrl}/{GOOGLE_LOGIN_API}");
                 googleLoginRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
                 googleLoginRequest.Content = new StringContent(JsonSerializer.Serialize(userInfo), Encoding.UTF8, "application/json");
     
@@ -201,7 +204,7 @@ namespace GoRideShare
             userInfo.Photo = photoBase64;
 
             // Send info for registration
-            HttpRequestMessage registerUserRequestMessage = new(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser");
+            HttpRequestMessage registerUserRequestMessage = new(HttpMethod.Post, $"{_baseApiUrl}/{GOOGLE_SINGUP_API}");
             registerUserRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", dbToken);
             registerUserRequestMessage.Content = new StringContent(JsonSerializer.Serialize(userInfo), Encoding.UTF8, "application/json");
             HttpResponseMessage registerUserResponseMessage = await _httpClient.SendAsync(registerUserRequestMessage);
