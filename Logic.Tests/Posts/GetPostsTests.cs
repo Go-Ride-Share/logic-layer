@@ -57,7 +57,7 @@ namespace GoRideShare.Tests
             var result = await _getPosts.Run(request, "");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Invalid Query Parameter: `user_id` must be a Guid", badRequestResult.Value);
+            Assert.Equal("Invalid Query Parameter: `user_id` not passed", badRequestResult.Value);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
+            context.Request.RouteValues["user_id"] = "test-user-id";
 
             _httpRequestHandlerMock
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -140,7 +140,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
+            context.Request.RouteValues["user_id"] = "<test-user-id>";
 
             _httpRequestHandlerMock
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))

@@ -16,8 +16,8 @@ namespace GoRideShare
         private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
 
         // This function is triggered by an HTTP POST request to verify login credentials
-        [Function("UserLogin")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users/Login")] HttpRequest req)
+        [Function("PasswordLogin")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users/PasswordLogin")] HttpRequest req)
         {
             // Read the request body to get the user's login data (email and password hash)
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -50,7 +50,7 @@ namespace GoRideShare
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/users/login")
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/users/PasswordLogin")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };
