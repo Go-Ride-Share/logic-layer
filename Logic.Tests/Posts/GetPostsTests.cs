@@ -27,7 +27,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-User-ID'.", badRequestResult.Value);
@@ -40,7 +40,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "test_user_id";
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
@@ -54,10 +54,10 @@ namespace GoRideShare.Tests
             request.Headers["X-User-ID"] = "test_user_id";
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following query param: 'userId'", badRequestResult.Value);
+            Assert.Equal("Invalid Query Parameter: `user_id` not passed", badRequestResult.Value);
         }
 
         [Fact]
@@ -65,15 +65,15 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
+            context.Request.RouteValues["user_id"] = "test-user-id";
 
             _httpRequestHandlerMock
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, "[]"));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var objectResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal("[]", objectResult.Value);
@@ -84,7 +84,7 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "userId";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "token";
             request.QueryString = new QueryString("?userId=<test-user-id>");
 
@@ -102,7 +102,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 90.12f,
                     DestinationLng = 34.56f,
                     Price = 15.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 },
                 new PostDetails
                 {
@@ -116,7 +117,8 @@ namespace GoRideShare.Tests
                     DestinationLat = 80.21f,
                     DestinationLng = 43.65f,
                     Price = 35.0f,
-                    SeatsAvailable = 2
+                    SeatsAvailable = 2,
+                    CreatedAt = DateTime.Parse("2024-10-10")
                 }
             };
 
@@ -124,7 +126,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, JsonSerializer.Serialize(mockPosts)));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedPosts = Assert.IsAssignableFrom<List<PostDetails>>(okResult.Value);
@@ -136,15 +138,15 @@ namespace GoRideShare.Tests
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.Headers["X-User-ID"] = "test_user_id";
+            request.Headers["X-User-ID"] = "09c453af-8065-42b7-9836-947eace8d6aa";
             request.Headers["X-Db-Token"] = "db-token";
-            request.QueryString = new QueryString("?userId=<test-user-id>");
+            context.Request.RouteValues["user_id"] = "<test-user-id>";
 
             _httpRequestHandlerMock
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "[]"));
 
-            var result = await _getPosts.Run(request);
+            var result = await _getPosts.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);

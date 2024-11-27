@@ -7,17 +7,17 @@ using Xunit;
 
 namespace GoRideShare.Tests
 {
-    public class GetAllConversationsTests
+    public class GetConversationsTests
     {
-        private readonly Mock<ILogger<GetAllConversations>> _loggerMock;
+        private readonly Mock<ILogger<GetConversations>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
-        private readonly GetAllConversations _getAllConversations;
+        private readonly GetConversations _getConversations;
 
-        public GetAllConversationsTests()
+        public GetConversationsTests()
         {
-            _loggerMock = new Mock<ILogger<GetAllConversations>>();
+            _loggerMock = new Mock<ILogger<GetConversations>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _getAllConversations = new GetAllConversations(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _getConversations = new GetConversations(_loggerMock.Object, _httpRequestHandlerMock.Object);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "test_user_id";
 
-            var result = await _getAllConversations.Run(request);
+            var result = await _getConversations.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
@@ -40,7 +40,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _getAllConversations.Run(request);
+            var result = await _getConversations.Run(request);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-User-ID'.", badRequestResult.Value);
@@ -59,7 +59,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "Error connecting to DB layer"));
 
-            var result = await _getAllConversations.Run(request);
+            var result = await _getConversations.Run(request);
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
@@ -82,7 +82,7 @@ namespace GoRideShare.Tests
             try
             {
 
-                result = await _getAllConversations.Run(request);
+                result = await _getConversations.Run(request);
             }
             catch (JsonException)
             {
@@ -107,7 +107,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, "[]"));
 
-            var result = await _getAllConversations.Run(request);
+            var result = await _getConversations.Run(request);
 
             var objectResult = Assert.IsType<OkObjectResult>(result);
         }
@@ -152,7 +152,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, mockResponse));
 
-            var result = await _getAllConversations.Run(request);
+            var result = await _getConversations.Run(request);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedConversations = Assert.IsAssignableFrom<List<Conversation>>(okResult.Value);

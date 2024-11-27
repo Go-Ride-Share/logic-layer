@@ -15,8 +15,8 @@ namespace GoRideShare
         private readonly string? _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
 
         // This function is triggered by an HTTP POST request to create a new user
-        [Function("CreateUser")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        [Function("UserCreate")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users")] HttpRequest req)
         {
             // Read the request body to get the user's registration information
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -35,8 +35,7 @@ namespace GoRideShare
 
             // Validate if essential user data is present
             if (userData == null || string.IsNullOrEmpty(userData.Email) ||
-            string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash)
-            || string.IsNullOrEmpty(userData.PhoneNumber))
+            string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.PasswordHash))
             {
                 _logger.LogError("Incomplete user data.");
                 return new BadRequestObjectResult("Incomplete user data.");
@@ -50,7 +49,7 @@ namespace GoRideShare
             string db_token = await jwtTokenHandler.GenerateTokenAsync();
 
             // Send request to db
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/CreateUser")
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{_baseApiUrl}/api/users")
             {
                 Content = new StringContent(JsonSerializer.Serialize(userData), Encoding.UTF8, "application/json")
             };

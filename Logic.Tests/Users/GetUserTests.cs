@@ -27,7 +27,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-User-ID'.", badRequestResult.Value);
@@ -40,7 +40,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "test_user_id";
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
@@ -68,7 +68,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, JsonSerializer.Serialize(mockUser)));
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedUser = Assert.IsType<string>(okResult.Value);
@@ -87,7 +87,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "404: Not Found"));
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var response = Assert.IsType<string>(notFoundResult.Value);
@@ -106,7 +106,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "400: Bad Request"));
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             Assert.IsType<BadRequestObjectResult>(result);
         }
@@ -123,7 +123,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, ""));
 
-            var result = await _getUser.Run(request);
+            var result = await _getUser.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);

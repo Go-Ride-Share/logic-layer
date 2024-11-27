@@ -23,8 +23,8 @@ namespace GoRideShare
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
 
-        [Function("EditUser")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+        [Function("UserEdit")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Users")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
@@ -40,8 +40,8 @@ namespace GoRideShare
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            var endpoint = $"{_baseApiUrl}/api/EditUser";
-            var (error, response) = await _httpRequestHandler.MakeHttpPostRequest(endpoint, requestBody, db_token, userId.ToString());
+            var endpoint = $"{_baseApiUrl}/api/users";
+            var (error, response) = await _httpRequestHandler.MakeHttpPatchRequest(endpoint, requestBody, db_token, userId.ToString());
             if (!error)
             {
                 return new OkObjectResult(new { message = "User updated successfully" });

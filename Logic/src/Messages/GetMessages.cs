@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace GoRideShare
 {
-    public class PollConversation
+    public class GetMessages
     {
-        private readonly ILogger<PollConversation> _logger;
+        private readonly ILogger<GetMessages> _logger;
         private readonly string? _baseApiUrl;
         private readonly IHttpRequestHandler _httpRequestHandler;
 
-        public PollConversation(ILogger<PollConversation> logger, IHttpRequestHandler httpRequestHandler)
+        public GetMessages(ILogger<GetMessages> logger, IHttpRequestHandler httpRequestHandler)
         {
             _logger = logger;
             _httpRequestHandler = httpRequestHandler;
@@ -20,8 +20,8 @@ namespace GoRideShare
         }
 
         // This function is triggered by an HTTP GET request to fetch a conversation from the DB layer
-        [Function("PollConversation")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        [Function("MessagesGet")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Messages/{conversation_id}")] HttpRequest req, string conversation_id)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
@@ -31,16 +31,16 @@ namespace GoRideShare
             }
 
             // Read the conversationId from the query params
-            if (!req.Query.TryGetValue("conversationId", out var conversationId))
+            if (string.IsNullOrEmpty(conversation_id))
             {
-                return new BadRequestObjectResult("Missing the following query param: \'conversationId\'");
+                return new BadRequestObjectResult("Missing the following path param: \'conversation_id\'");
             }
 
             // Timestamp is an optional parameter to limit the response size
-            var endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}";
+            var endpoint = $"{_baseApiUrl}/api/messages/{conversation_id}";
             if (req.Query.TryGetValue("timeStamp", out var timeStamp))
             {
-                endpoint = $"{_baseApiUrl}/api/PollConversation?conversationId={conversationId}&timeStamp={timeStamp}";
+                endpoint = $"{_baseApiUrl}/api/messages/{conversation_id}?timeStamp={timeStamp}";
             }
 
             // Create the HttpRequestMessage and add the db_token to the Authorization header

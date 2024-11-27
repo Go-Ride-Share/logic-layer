@@ -7,17 +7,17 @@ using Xunit;
 
 namespace GoRideShare.Tests
 {
-    public class PollConversationTests
+    public class GetMessagesTests
     {
-        private readonly Mock<ILogger<PollConversation>> _loggerMock;
+        private readonly Mock<ILogger<GetMessages>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
-        private readonly PollConversation _pollConversation;
+        private readonly GetMessages _getMessages;
 
-        public PollConversationTests()
+        public GetMessagesTests()
         {
-            _loggerMock = new Mock<ILogger<PollConversation>>();
+            _loggerMock = new Mock<ILogger<GetMessages>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _pollConversation = new PollConversation(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _getMessages = new GetMessages(_loggerMock.Object, _httpRequestHandlerMock.Object);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-User-ID"] = "test_user_id";
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-Db-Token'.", badRequestResult.Value);
@@ -40,7 +40,7 @@ namespace GoRideShare.Tests
             var request = context.Request;
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Missing the following header: 'X-User-ID'.", badRequestResult.Value);
@@ -54,10 +54,10 @@ namespace GoRideShare.Tests
             request.Headers["X-User-ID"] = "test_user_id";
             request.Headers["X-Db-Token"] = "db-token";
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Missing the following query param: 'conversationId'", badRequestResult.Value);
+            Assert.Equal("Missing the following path param: 'conversation_id'", badRequestResult.Value);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((true, "Error connecting to DB layer"));
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
@@ -108,7 +108,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, invalidMockResponse));
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status400BadRequest, objectResult.StatusCode);
@@ -144,7 +144,7 @@ namespace GoRideShare.Tests
                 .Setup(m => m.MakeHttpGetRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((false, mockResponse));
 
-            var result = await _pollConversation.Run(request);
+            var result = await _getMessages.Run(request, "0523e365-2499-46ad-b71f-c12e5128f2ee");
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedConversation = Assert.IsAssignableFrom<Conversation>(okResult.Value);

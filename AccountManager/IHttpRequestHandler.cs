@@ -11,6 +11,7 @@ namespace GoRideShare
     public interface IHttpRequestHandler
     {
         Task<(bool, string)> MakeHttpGetRequest(string endpoint);
+        Task<(bool, string)> MakeHttpPostRequest(string endpoint, string body);
     }
 
 }
