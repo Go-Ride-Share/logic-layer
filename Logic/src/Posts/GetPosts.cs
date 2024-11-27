@@ -23,7 +23,7 @@ namespace GoRideShare
 
         // This function is triggered by an HTTP GET request to retrive a users posts
         [Function("PostsGet")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{user_id}")] HttpRequest req, string postUserId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Posts/{user_id}")] HttpRequest req, string user_id)
         {
             // If validation result is not null, return the bad request result
             var validationResult = Utilities.ValidateHeaders(req.Headers, out string requsterUserId, out string db_token);
@@ -31,16 +31,16 @@ namespace GoRideShare
             {
                 return validationResult;
             }
-            // Read the posterId from the query params
-            if (string.IsNullOrEmpty(postUserId?.Trim()))
+            // Read the posterId from the path params
+            if (string.IsNullOrEmpty(user_id?.Trim()))
             {
-                _logger.LogError("Invalid Query Parameter: `user_id` not passed");
-                return new BadRequestObjectResult("Invalid Query Parameter: `user_id` not passed");
+                _logger.LogError("Invalid Path Parameter: `user_id` not passed");
+                return new BadRequestObjectResult("Invalid Path Parameter: `user_id` not passed");
             } else {
-                _logger.LogInformation($"user_id: {postUserId}");
+                _logger.LogInformation($"user_id: {user_id}");
             }
 
-            string endpoint = $"{_baseApiUrl}/api/posts/{postUserId}";
+            string endpoint = $"{_baseApiUrl}/api/posts/{user_id}";
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, requsterUserId);
 
             if (!error)
