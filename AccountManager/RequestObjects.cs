@@ -216,9 +216,9 @@ namespace GoRideShare
             {
                 return (true, "OriginLat is Invalid");
             }
-            if (180 < OriginLng || OriginLng < -180)
+            if (90 < DestinationLat || DestinationLat < -90)
             {
-                return (true, "OriginLng is Invalid");
+                return (true, "DestinationLat is Invalid");
             }
             if (180 < DestinationLng || DestinationLng < -180)
             {
