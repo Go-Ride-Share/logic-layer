@@ -53,7 +53,7 @@ namespace GoRideShare
 
         [JsonRequired]
         [JsonPropertyName("posterId")]
-        public required Guid PosterId { get; set; }
+        public required string PosterId { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("name")]
@@ -239,7 +239,7 @@ namespace GoRideShare
     public class User
     {
         [JsonPropertyName("userId")]
-        public Guid? UserId { get; set; }
+        public string? UserId { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("name")]
@@ -252,7 +252,7 @@ namespace GoRideShare
 
         public User
         (
-            Guid userId,
+            string userId,
             string name,
             string? photo
         )

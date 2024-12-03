@@ -16,7 +16,7 @@ Request paylaod template:
 Response payload template:
 ```
 {
-    user_id: string, ex "new_user_guid",
+    user_id: string, ex "new_user_id",
     logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
     db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
     photo: string, ex "photo_encoding"
@@ -35,7 +35,7 @@ Request paylaod template:
 Response payload template:
 ```
 {
-    user_id: string, ex "new_user_guid",
+    user_id: string, ex "new_user_id",
     logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
     db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
     photo: string, ex "photo_encoding"
@@ -49,7 +49,7 @@ Request Header template:
 ```
 {
     X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_guid_to_get_user"
+    X-User-ID: string, ex "user_id_to_get_user"
 }
 ```
 
@@ -69,7 +69,7 @@ Request Header template:
 ```
 {
     X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_guid_to_get_user"
+    X-User-ID: string, ex "user_id_to_get_user"
 }
 ```
 
@@ -90,7 +90,7 @@ Request Header template:
 ```
 {
     X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_guid_to_get_user"
+    X-User-ID: string, ex "user_id_to_get_user"
 }
 ```
 
@@ -99,7 +99,7 @@ Request paylaod template:
 {
     "name": "namename",
     "postId": "post_guid" (null for new posts, and existing guid to update posts)
-    "posterId": "user_guid",
+    "posterId": "user_id",
     "description": "This is a dummy ride-share post.",
     "departureDate": "2024-10-09",
     "originLat": 40.712776,
@@ -123,20 +123,20 @@ Request Header template:
 ```
 {
     X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_guid_to_get_user"
+    X-User-ID: string, ex "user_id_to_get_user"
 }
 ```
 
 Request Query parameter template:
 ```
-/GetPost?userId={user_guid}
+/GetPost?userId={user_id}
 ```
 
 Response paylaod template:
 ```
 {
     "name": "namename",
-    "posterId": "user_guid",
+    "posterId": "user_id",
     "description": "This is a dummy ride-share post.",
     "departureDate": "2024-10-09",
     "originLat": 40.712776,
