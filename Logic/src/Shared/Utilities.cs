@@ -9,7 +9,7 @@ namespace GoRideShare
     public static class Utilities
     {
         // Method that validates headers, outputs the userID and db_token, returns exception if headers  missing, null if headers are good
-        public static IActionResult ValidateHeaders(IHeaderDictionary headers, out string userId, out string db_token)
+        public static IActionResult? ValidateHeaders(IHeaderDictionary headers, out string userId, out string db_token)
         {
             userId = string.Empty;
             db_token = string.Empty;

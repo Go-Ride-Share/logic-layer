@@ -77,7 +77,7 @@ namespace GoRideShare.Tests
             var result = await _postMessage.Run(request);
 
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("contents cannot be empty", objectResult.Value.ToString());
+            Assert.Contains("contents cannot be empty", objectResult.Value?.ToString());
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace GoRideShare.Tests
             var result = await _postMessage.Run(request);
 
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("conversationId is invalid", objectResult.Value.ToString());
+            Assert.Contains("conversationId is invalid", objectResult.Value?.ToString());
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace GoRideShare.Tests
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value.ToString());
+            Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value?.ToString());
         }
     }
 }

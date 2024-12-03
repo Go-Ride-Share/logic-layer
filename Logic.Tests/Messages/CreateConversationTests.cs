@@ -79,7 +79,7 @@ namespace GoRideShare.Tests
 
             // Assert
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("userId is invalid", objectResult.Value.ToString()); // Adjust according to your validation logic
+            Assert.Contains("userId is invalid", objectResult.Value?.ToString()); // Adjust according to your validation logic
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace GoRideShare.Tests
 
             // Assert
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("contents cannot be empty", objectResult.Value.ToString()); // Adjust according to your validation logic
+            Assert.Contains("contents cannot be empty", objectResult.Value?.ToString()); // Adjust according to your validation logic
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace GoRideShare.Tests
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Contains("Error connecting to the DB layer", objectResult.Value.ToString());
+            Assert.Contains("Error connecting to the DB layer", objectResult.Value?.ToString());
         }
     }
 }

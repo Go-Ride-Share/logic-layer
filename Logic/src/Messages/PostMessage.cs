@@ -36,9 +36,19 @@ namespace GoRideShare
             try
             {
                 newMessage = JsonSerializer.Deserialize<IncomingMessageRequest>(requestBody);
-                var (invalid, errorMessage) = newMessage.validate();
-                if (invalid)
+                if (newMessage != null)
                 {
+                    var (invalid, errorMessage) = newMessage.validate();
+                    if (invalid)
+                    {
+                        _logger.LogInformation(errorMessage);
+                        return new BadRequestObjectResult(errorMessage);
+                    }
+                }
+                else
+                {
+                    string errorMessage = "Failed to deserialize request body.";
+                    _logger.LogInformation(errorMessage);
                     return new BadRequestObjectResult(errorMessage);
                 }
             }
