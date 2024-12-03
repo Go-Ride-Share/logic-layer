@@ -12,10 +12,10 @@ namespace GoRideShare
     public class PostDetails
     {   
         [JsonPropertyName("postId")]
-        public string PostId { get; set; }
+        public string? PostId { get; set; }
         
         [JsonPropertyName("posterId")]
-        public string PosterId { get; set; }
+        public string? PosterId { get; set; }
         [JsonRequired]
         [JsonPropertyName("name")]
         public required string Name { get; set; }
