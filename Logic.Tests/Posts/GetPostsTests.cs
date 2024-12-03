@@ -57,7 +57,7 @@ namespace GoRideShare.Tests
             var result = await _getPosts.Run(request, "");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Invalid Query Parameter: `user_id` not passed", badRequestResult.Value);
+            Assert.Equal("Invalid Path Parameter: `user_id` not passed", badRequestResult.Value);
         }
 
         [Fact]

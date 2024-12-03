@@ -92,12 +92,22 @@ namespace GoRideShare.Tests
             request.Headers["X-Db-Token"] = "db-token";
             request.QueryString = new QueryString("?conversationId=test_conversation_id");
 
+            // // Create invalid mock conversation data
+            // var invalidMockConversation = new {
+            //     user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage()),
+            //     conversationId = "ccccc-cccccccccc-ccccc",
+            //     postId =  "aaaaa-aaaaaaaaaa-aaaaa"
+            // };
+
             // Create invalid mock conversation data
-            var invalidMockConversation = new {
-                user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage()),
-                conversationId = "ccccc-cccccccccc-ccccc",
-                postId =  "aaaaa-aaaaaaaaaa-aaaaa"
-            };
+            // Create invalid mock conversation data
+            var invalidMockConversation = new Conversation
+            (
+                user: new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage()),
+                conversationId: "ccccc-cccccccccc-ccccc",
+                messages: null,
+                postId: "aaaaa-aaaaaaaaaa-aaaaa"
+            );
 
             var invalidMockResponse = JsonSerializer.Serialize(invalidMockConversation);
 

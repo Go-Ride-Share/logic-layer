@@ -132,7 +132,7 @@ namespace GoRideShare
 
         [JsonRequired]
         [JsonPropertyName("messages")]
-        public List<Message> Messages { get; set; }
+        public List<Message>? Messages { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("user")]
@@ -145,7 +145,7 @@ namespace GoRideShare
         (
             string conversationId,
             User user,
-            List<Message> messages,
+            List<Message>? messages,
             string postId
         )
         {
