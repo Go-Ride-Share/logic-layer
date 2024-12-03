@@ -47,7 +47,7 @@ namespace GoRideShare.Tests
                 new PostDetails
                 {
                     PostId = Guid.Parse("09c453af-8065-42b7-9836-947eace8d6aa"),
-                    PosterId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"),
+                    PosterId = "2447c169-3476-4aee-872f-a64469a8138e",
                     Name = "test post 1",
                     Description = "test_desc",
                     OriginName = null,
@@ -63,7 +63,7 @@ namespace GoRideShare.Tests
                     CreatedAt = DateTime.Parse("2024-10-10"),
                     Poster = new User
                     {
-                        UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"),
+                        UserId = "2447c169-3476-4aee-872f-a64469a8138e",
                         Name = "test user",
                         Photo = null
                     }
@@ -71,7 +71,7 @@ namespace GoRideShare.Tests
                 new PostDetails
                 {
                     PostId = Guid.Parse("09c453af-8065-42b7-9836-947eace8d6aa"),
-                    PosterId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"), 
+                    PosterId = "2447c169-3476-4aee-872f-a64469a8138e", 
                     Name = "test Post 2",
                     Description = "test_desc",
                     OriginName = null,
@@ -87,7 +87,7 @@ namespace GoRideShare.Tests
                     CreatedAt = DateTime.Parse("2024-10-10"),
                     Poster = new User
                     {
-                        UserId = Guid.Parse("2447c169-3476-4aee-872f-a64469a8138e"), 
+                        UserId = "2447c169-3476-4aee-872f-a64469a8138e", 
                         Name = "test user",  
                         Photo = null
                     }
