@@ -134,7 +134,7 @@ namespace GoRideShare.Tests
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Equal("Error connecting to the DB layer.", objectResult.Value.ToString());
+            Assert.Equal("Error connecting to the DB layer.", objectResult.Value?.ToString());
         }
 
     }

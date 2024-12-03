@@ -80,7 +80,7 @@ namespace GoRideShare.Tests
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Contains("Error connecting to the DB layer", objectResult.Value.ToString());
+            Assert.Contains("Error connecting to the DB layer", objectResult.Value?.ToString());
         }
 
         [Fact]
@@ -93,13 +93,11 @@ namespace GoRideShare.Tests
             request.QueryString = new QueryString("?conversationId=test_conversation_id");
 
             // Create invalid mock conversation data
-            var invalidMockConversation = new Conversation
-            (
-                user: new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage()),
-                conversationId: "ccccc-cccccccccc-ccccc",
-                messages: null,
-                postId: "aaaaa-aaaaaaaaaa-aaaaa"
-            );
+            var invalidMockConversation = new {
+                user = new User("bbbbb-bbbbbbbbbb-bbbbb", "Bob", Images.getImage()),
+                conversationId = "ccccc-cccccccccc-ccccc",
+                postId =  "aaaaa-aaaaaaaaaa-aaaaa"
+            };
 
             var invalidMockResponse = JsonSerializer.Serialize(invalidMockConversation);
 
