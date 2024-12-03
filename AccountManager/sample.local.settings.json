@@ -11,6 +11,7 @@
     "OAUTH_SCOPE": "f",
     "OAUTH_SCOPE_DB": "f",
     "OAUTH_TENANT_ID_DB": "f",
-    "OAUTH_TENANT_ID": "f"
+    "OAUTH_TENANT_ID": "f",
+    "USER_TOKENS_TABLE_CONNECTION_STRING": "f"
   }
 }
