@@ -17,16 +17,16 @@ namespace GoRideShare
         public required string Email { get; set; }
 
         [JsonPropertyName("password")]
-        public required string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         [JsonPropertyName("name")]
         public required string Name { get; set; }
 
         [JsonPropertyName("bio")]
-        public required string Bio { get; set; }
+        public string? Bio { get; set; }
 
         [JsonPropertyName("phone")]
-        public required string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         [JsonPropertyName("photo")]
         public string? Photo { get; set; }
