@@ -24,7 +24,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Posts")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeaders(req.Headers, out string userId, out string db_token);
+            var validationResult = Utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
