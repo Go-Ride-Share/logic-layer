@@ -3,6 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "BASE_API_URL": ""
+    "BASE_API_URL": "",
+    "USER_TOKENS_TABLE_CONNECTION_STRING": ""
   }
 }

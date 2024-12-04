@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Azure;
 using Azure.Data.Tables;
 
@@ -25,7 +24,7 @@ public class SecurityGuard
         {
             // Find the older token set and update it
             TableEntity oldestEntity = userTokensSets[0];
-            
+
             if (DateTime.Parse(userTokensSets[1]["Timestamp"].ToString() ?? "") <= DateTime.Parse(userTokensSets[0]["Timestamp"].ToString() ?? ""))
             {
                 oldestEntity = userTokensSets[1];
