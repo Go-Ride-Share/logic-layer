@@ -43,7 +43,7 @@ namespace GoRideShare
             }
             if (!foundValidToken)
             {
-                return (true, "Tokens do not match");
+                return (true, "Tokens do not match, please sign in again!");
             }
             return (false, "Tokens match");
         }
