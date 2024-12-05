@@ -10,13 +10,17 @@ namespace GoRideShare.Tests
     {
         private readonly Mock<ILogger<PostMessage>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
+        private readonly Mock<IAzureTableService> _azureTableService;
+        private readonly Utilities _utilities;        
         private readonly PostMessage _postMessage;
 
         public PostMessageTests()
         {
             _loggerMock = new Mock<ILogger<PostMessage>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _postMessage = new PostMessage(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _azureTableService = new Mock<IAzureTableService>();
+            _utilities = new Utilities(_azureTableService.Object);            
+            _postMessage = new PostMessage(_loggerMock.Object, _httpRequestHandlerMock.Object, _utilities);
         }
 
         [Fact]

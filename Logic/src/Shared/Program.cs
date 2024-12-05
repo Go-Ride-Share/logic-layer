@@ -9,6 +9,7 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddScoped<IHttpRequestHandler, HttpRequestHandler>();
+        services.AddSingleton<Utilities>();
     })
     .Build();
 

@@ -13,10 +13,12 @@ namespace GoRideShare
         private readonly ILogger<GetUser> _logger;
         private readonly IHttpRequestHandler _httpRequestHandler;
         private readonly string? _baseApiUrl;
+        private readonly Utilities _utilities;
 
-        public GetUser(ILogger<GetUser> logger, IHttpRequestHandler httpRequestHandler)
+        public GetUser(ILogger<GetUser> logger, IHttpRequestHandler httpRequestHandler, Utilities utilities)
         {
             _logger = logger;
+            _utilities = utilities;
             _httpRequestHandler = httpRequestHandler;
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
@@ -26,7 +28,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Users/{user_id}")] HttpRequest req, string? user_id)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
+            var validationResult = _utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;

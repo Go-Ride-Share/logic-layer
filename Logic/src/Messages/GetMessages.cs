@@ -11,10 +11,12 @@ namespace GoRideShare
         private readonly ILogger<GetMessages> _logger;
         private readonly string? _baseApiUrl;
         private readonly IHttpRequestHandler _httpRequestHandler;
+        private readonly Utilities _utilities;
 
-        public GetMessages(ILogger<GetMessages> logger, IHttpRequestHandler httpRequestHandler)
+        public GetMessages(ILogger<GetMessages> logger, IHttpRequestHandler httpRequestHandler, Utilities utilities)
         {
             _logger = logger;
+            _utilities = utilities;
             _httpRequestHandler = httpRequestHandler;
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
@@ -24,7 +26,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Messages/{conversation_id}")] HttpRequest req, string conversation_id)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
+            var validationResult = _utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;

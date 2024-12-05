@@ -15,11 +15,13 @@ namespace GoRideShare
         private readonly ILogger<EditUser> _logger;
         // Base URL for the API (retrieved from environment variables)
         private readonly string? _baseApiUrl;
+        private readonly Utilities _utilities;
 
-        public EditUser(ILogger<EditUser> logger, IHttpRequestHandler httpRequestHandler)
+        public EditUser(ILogger<EditUser> logger, IHttpRequestHandler httpRequestHandler, Utilities utilities)
         {
-             _httpRequestHandler = httpRequestHandler;
+            _httpRequestHandler = httpRequestHandler;
             _logger = logger;
+            _utilities = utilities;
             _baseApiUrl = Environment.GetEnvironmentVariable("BASE_API_URL");
         }
 
@@ -27,7 +29,7 @@ namespace GoRideShare
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Users")] HttpRequest req)
         {
             // If validation result is not null, return the bad request result
-            var validationResult = Utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
+            var validationResult = _utilities.ValidateHeadersAndTokens(req.Headers, out string userId, out string db_token);
             if (validationResult != null)
             {
                 return validationResult;
