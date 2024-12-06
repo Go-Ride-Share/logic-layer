@@ -1,33 +1,15 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.0
-  title: Go Ride Share Account Logic API
-  description: <h3> Internal Logic API for Account Operations
+  version: 1.2.0
+  title: Go Ride Share Logic Layer API
+  description: <h2> Internal Logic API for Logic operations
 
-paths:                                         
-  /api/VerifyLoginCredentials:
-    post:
-      summary: Get Login Tokens for App Access
-      operationId: VerifyLoginCredentials
-      tags:
-        - Users
-      requestBody:
-        required: true
-        content:  
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyLoginCredentialsRequest'   
-      responses:   
-        '200':
-          description:  Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VerifyLoginCredentialsResponse"          
+paths:
 
-  /api/CreateUser:
+# ------ Users ------ 
+  /api/users:
     post:
-      summary: Create a new Account
+      summary: Create a new User
       operationId: CreateUser
       tags:
         - Users
@@ -36,46 +18,576 @@ paths:
         content:  
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatUserRequest'   
+              $ref: "#/components/schemas/UserRegistrationInfo"
       responses:   
         '200':
           description:  Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VerifyLoginCredentialsResponse"                         
+                $ref: "#/components/schemas/CreateAccountResponse"         
+  /api/users/{user_id}:
+    get:
+      summary: Gets a user Profile from the DB Layer
+      operationId: getUser
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user who's posts you want to query
+          required: true
+          schema:
+            type: string
+            format: string   
+      tags:
+        - Users
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"   
+    patch:
+      summary: Edit existing user
+      operationId: EditUser
+      tags:
+        - Users
+      parameters:        
+        - name: user_id
+          in: path
+          description: The ID of the user who's posts you want to query
+          required: true
+          schema:
+            type: string
+            format: string           
+      requestBody:
+        required: true
+        content:  
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistrationInfo"
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAccountResponse"     
+  /api/users/passwordlogin:
+    post:
+      summary: Attempts to get access keys for user
+      operationId: LoginUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:  
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordLoginCredentials"
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAccountResponse"                       
+
+  /api/users/googlelogin:
+    post:
+      summary: Attempts to get access keys for user
+      operationId: LoginUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:  
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleLoginCredentials"
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAccountResponse"
+
+# ------ Posts ------ 
+  /api/posts:
+    post:
+      summary: Create a completed post
+      operationId: createPost
+      tags:
+        - Posts
+      parameters:
+        - name: X-User-ID
+          in: header
+          description: Your user Id
+          required: true
+          example: 123e4567-e89b-12d3-a456-426614174000
+          schema:
+            type: string
+            format: string          
+      requestBody:
+        required: true
+        content:  
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostDetails'   
+      responses:
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessfulPostResponse"       
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsuccessfulResponse"  
+    get:
+      summary: Get all posts from the DB Layer
+      operationId: getAllPosts
+      tags:
+        - Posts
+      parameters:
+        - name: pageStart
+          in: query
+          description: The offset when querying posts from the table
+          schema:
+            type: integer      
+        - name: pageSize
+          in: query
+          description: The number of entries to return for pagination
+          schema:
+            type: integer            
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostList"          
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsuccessfulResponse"                   
+  /api/posts/{user_id}:
+    get:
+      summary: Get a user's posts from the DB Layer
+      operationId: getPosts
+      tags:
+        - Posts
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user who's posts you want to query
+          required: true
+          schema:
+            type: string
+            format: string    
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostList"          
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsuccessfulResponse"
+  /api/posts/?postId={post_id}:
+    get:
+      summary: Get a single post from the DB Layer
+      operationId: getPosts
+      tags:
+        - Posts
+      parameters:
+        - name: post_id
+          in: query
+          description: The ID of the post to get from the DB Layer
+          required: true
+          schema:
+            type: string
+            format: string    
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostDetails"          
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsuccessfulResponse"
+  /api/posts/{post_id}:
+    post:
+        summary: Update a post you have made previously
+        operationId: updatePost
+        tags:
+          - Posts
+        parameters:
+          - name: post_id
+            in: path
+            description: The ID of the post you want to edit (Guid)
+            required: true
+            example: 123e4567-e89b-12d3-a456-426614174000
+            schema:
+              type: string
+              format: string            
+          - name: X-User-ID
+            in: header
+            description: Your user Id
+            required: true
+            example: 123e4567-e89b-12d3-a456-426614174000
+            schema:
+              type: string
+              format: string                 
+        requestBody:
+          required: true
+          content:  
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDetails'   
+        responses:
+          '200':
+            description:  Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/SuccessfulPostResponse"       
+          '400':
+            description: Unsuccessful
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UnsuccessfulResponse"                                    
+  /api/posts/search:
+    post:
+      summary: Get filtered posts based on search criteria
+      operationId: postSearch
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:  
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCriteria'   
+ 
+      responses:   
+        '200':
+          description:  Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostList"          
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsuccessfulResponse"                       
+
+# ------ Conversations ------ 
+  /api/conversations:
+    post:
+      summary: Create a new conversation between 2 users
+      operationId: CreateConversation
+      tags:
+        - Conversations
+      parameters:
+        - name: X-User-ID
+          in: header
+          description: Your user Id
+          required: true
+          example: 123e4567-e89b-12d3-a456-426614174000
+          schema:
+            type: string
+            format: string          
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsuccessfulResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+    get:
+      summary: Retrieve a snapshot of conversations for the user specified by "X-User-ID" in the headers. Each conversation will include only the latest message.     
+      operationId: GetAllConversations
+      tags:
+        - Conversations
+      parameters:
+        - name: X-User-ID
+          in: header
+          description: Your user Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageObject'
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsuccessfulResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+
+# ------ Messages ------     
+  /api/messages:
+    post:
+      summary: Post a message to a conversation
+      operationId: PostMessage
+      tags:
+        - Messages
+      parameters:
+        - name: X-User-ID
+          in: header
+          description: Your user Id
+          required: true
+          example: 123e4567-e89b-12d3-a456-426614174000
+          schema:
+            type: string
+            format: string          
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageObject'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json: 
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: The ID of the Conversation in which Message was added
+                    type: string
+                    example: "5a3f9c5b9d8e8d001f123456"
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsuccessfulResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /api/messages/{conversationId}:
+    get:
+      summary: Retrieve limited number of messages for a given conversation ID
+      operationId: PollConversation
+      tags:
+        - Messages
+      parameters:
+        - name: X-User-ID
+          in: header
+          description: Your user Id
+          required: true
+          schema:
+            type: string
+        - name: conversationId
+          in: path
+          description: The ID of the conversation you want to query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of messages to retrieve. Default is 50 if not specified.
+          required: false
+          schema:
+            type: integer
+        - name: timeStamp
+          in: query
+          description: Only messages after this timestamp will be retrieved. Can be used together with limit to retrieve limited messages in a specific time range.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageObject'
+        '400':
+          description: Unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsuccessfulResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
 
 components:
   schemas:
-# VerifyLoginCredentialsRequest
-    VerifyLoginCredentialsRequest:
+    PostDetails:
       type: object
       required:
-        - email
-        - password
+        - name
+        - originLng
+        - originLat
+        - destinationLng
+        - destinationLat
+        - departureDate
+        - description
+        - price 
+        - seatsAvailable
+        - user
       properties:
-        email:
-          type: string      
-          example: "test@email.com" 
-        password:
-          type: string      
-          example: "testPassword"    
-    VerifyLoginCredentialsResponse:
+        name:
+          type: string  
+        description:
+          type: string            
+        originName:
+          type: string           
+        originLng:
+          type: number
+          format: float  
+        originLat:
+          type: number
+          format: float  
+        destinationName:
+          type: string       
+        destinationLng:
+          type: number
+          format: float  
+        destinationLat:
+          type: number
+          format: float  
+        departureDate:
+          type: string  
+        price:
+          type: number
+          format: float                 
+        seatsAvailable:
+          type: number
+        user:
+            type: object
+            properties:
+              userId:
+                type: string
+              name:
+                type: string
+              photo:
+                type: string
+    PostList:
+      type: array
+      items:
+        type: object
+        properties:
+          postId:
+            type: string 
+          posterId:
+            type: string             
+          name:
+            type: string  
+          originName:
+            type: string          
+          originLng:
+            type: number
+            format: float  
+          originLat:
+            type: number
+            format: float  
+          destinationName:
+            type: string         
+          destinationLng:
+            type: number
+            format: float  
+          destinationLat:
+            type: number
+            format: float  
+          departureDate:
+            type: string  
+          price:
+            type: number
+            format: float                 
+          seatsAvailable:
+            type: number   
+          user:
+            type: object
+            properties:
+              userId:
+                type: string
+              name:
+                type: string
+              photo:
+                type: string
+    SuccessfulPostResponse:
       type: object
       required:
-        - email
-        - password
+        - post_id
       properties:
-        logic_token:
-          type: string      
-          example: "oauth-token-generated-by-microsoft-for-logic-access"  
-        db_token:
-          type: string      
-          example: "oauth-token-generated-by-microsoft-for-db-access"     
-# CreateUser
-    CreatUserRequest:
+        post_id:
+          type: string           
+    UnsuccessfulResponse:
       type: object
       required:
+        - error
+      properties:
+        error:
+          type: string      
+          default: "ERROR MESSAGE" 
+    User:
+      type: object
+      required:
+        - user_id
         - email
         - password
         - name
@@ -83,6 +595,9 @@ components:
         - phone
         - photo
       properties:
+        user_id:
+          type: string      
+          example: "123e4567-e89b-12d3-a456-426614174000" 
         email:
           type: string      
           example: "test@email.com" 
@@ -100,5 +615,177 @@ components:
           example: "4312245323"          
         photo:
           type: string      
-          example: "testPhotoUrl"                  
-
+          example: "testPhotoUrl"           
+    UserRegistrationInfo:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        id:
+          type: string
+          example: googleuser-2342342523452345
+          description: only passed if the user signs up through Google
+        email:
+          type: string      
+          example: "test@email.com" 
+        password:
+          type: string      
+          example: "testPassword"     
+        name:
+          type: string      
+          example: "testName"     
+        bio:
+          type: string      
+          example: "testBio"            
+        phone:
+          type: string      
+          example: "4312245323"          
+        photo:
+          type: string      
+          example: "testPhotoUrl" 
+    CreateAccountResponse:
+      type: object
+      required:
+        - User_id
+        - Photo
+      properties:
+        User_id:
+          type: string
+        Photo:
+          type: string
+    ConversationRequest:
+      type: object
+      required:
+        - recipientId
+        - contents
+        - timeStamp
+      properties:
+        recipientId:
+          type: string
+          example: "The UserId of the person you want to message"
+        contents:
+          type: string
+          example: "Hello, is this ride available?"
+        timeStamp:
+          type: string
+          example: "2021-03-01T00:00:00Z"  
+    ConversationResponse:
+      type: object
+      required:
+        - conversationId
+        - user
+        - messages
+      properties:
+        conversation_id:
+          type: string
+          example: "5a3f9c5b9d8e8d001f123456" 
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            name:
+              type: string
+              example: "John Smith"
+            photo:
+              type: string
+              example: "www.photourl.com"
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageObject'
+    MessageObject:
+      type: object
+      required:
+        - conversationId
+        - contents
+        - timeStamp
+      properties:
+        conversationId:
+          type: string
+          example: "5a3f9c5b9d8e8d001f123456"
+        contents:
+          type: string
+          example: "Hello, is this ride available?"
+        timeStamp:
+          type: string
+          example: "2021-03-01T00:00:00Z"
+    ServerErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string      
+          default: "ERROR MESSAGE" 
+    PasswordLoginCredentials:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string      
+          example: "test@email.com" 
+        password:
+          type: string      
+          example: "password hash"
+    GoogleLoginCredentials:
+      type: object
+      required:
+        - email
+        - password
+        - id
+        - name
+      properties:
+        email:
+          type: string      
+          example: "test@email.com" 
+        password:
+          type: string      
+          example: "googleuser"   
+        id:
+          type: string
+          example: googleuser-2342342523452345
+        name:
+          type: string
+          example: Susan
+          
+    SearchCriteria:
+      type: object
+      required:
+        - originLat
+        - originLng
+        - destinationLat
+        - destinationLng       
+      properties:
+        originLat:
+          type: number
+          format: float
+          example: "-15.7568"
+        originLng:
+          type: number
+          format: float
+          example: "45.4568" 
+        destinationLat:
+          type: number
+          format: float
+          example: "-15.4568"
+        destinationLng:
+          type: number
+          format: float
+          example: "45.9758"                      
+        price:
+          type: number
+          format: float
+          example: "50.5"
+        numSeats:
+          type: number
+          format: integer
+          example: "2"          
+        departureDate:
+          type: string
+          example: "2024-11-04T06:00:00.000Z"
