@@ -11,13 +11,17 @@ namespace GoRideShare.Tests
     {
         private readonly Mock<ILogger<CreateConversation>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
+        private readonly Mock<IAzureTableService> _azureTableService;
+        private readonly Utilities _utilities;                      
         private readonly CreateConversation _createConversation;
 
         public CreateConversationTests()
         {
             _loggerMock = new Mock<ILogger<CreateConversation>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _createConversation = new CreateConversation(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _azureTableService = new Mock<IAzureTableService>();
+            _utilities = new Utilities(_azureTableService.Object);             
+            _createConversation = new CreateConversation(_loggerMock.Object, _httpRequestHandlerMock.Object, _utilities);
         }
 
         [Fact]
@@ -79,7 +83,7 @@ namespace GoRideShare.Tests
 
             // Assert
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("userId is invalid", objectResult.Value.ToString()); // Adjust according to your validation logic
+            Assert.Contains("userId is invalid", objectResult.Value?.ToString()); // Adjust according to your validation logic
         }
 
         [Fact]
@@ -98,7 +102,7 @@ namespace GoRideShare.Tests
 
             // Assert
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("contents cannot be empty", objectResult.Value.ToString()); // Adjust according to your validation logic
+            Assert.Contains("contents cannot be empty", objectResult.Value?.ToString()); // Adjust according to your validation logic
         }
 
         [Fact]
@@ -175,7 +179,7 @@ namespace GoRideShare.Tests
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Contains("Error connecting to the DB layer", objectResult.Value.ToString());
+            Assert.Contains("Error connecting to the DB layer", objectResult.Value?.ToString());
         }
     }
 }

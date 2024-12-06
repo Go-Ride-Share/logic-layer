@@ -12,10 +12,10 @@ namespace GoRideShare
     public class PostDetails
     {   
         [JsonPropertyName("postId")]
-        public string PostId { get; set; }
+        public string? PostId { get; set; }
         
         [JsonPropertyName("posterId")]
-        public string PosterId { get; set; }
+        public string? PosterId { get; set; }
         [JsonRequired]
         [JsonPropertyName("name")]
         public required string Name { get; set; }
@@ -132,7 +132,7 @@ namespace GoRideShare
 
         [JsonRequired]
         [JsonPropertyName("messages")]
-        public List<Message> Messages { get; set; }
+        public List<Message>? Messages { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("user")]
@@ -145,7 +145,7 @@ namespace GoRideShare
         (
             string conversationId,
             User user,
-            List<Message> messages,
+            List<Message>? messages,
             string postId
         )
         {

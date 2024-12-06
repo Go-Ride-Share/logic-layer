@@ -11,13 +11,17 @@ namespace GoRideShare.Tests
     {
         private readonly Mock<ILogger<GetPosts>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
+        private readonly Mock<IAzureTableService> _azureTableService;
+        private readonly Utilities _utilities;
         private readonly GetPosts _getPosts;
 
         public GetPostsTests()
         {
             _loggerMock = new Mock<ILogger<GetPosts>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _getPosts = new GetPosts(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _azureTableService = new Mock<IAzureTableService>();
+            _utilities = new Utilities(_azureTableService.Object);
+            _getPosts = new GetPosts(_loggerMock.Object, _httpRequestHandlerMock.Object, _utilities);
         }
 
         [Fact]
@@ -57,7 +61,7 @@ namespace GoRideShare.Tests
             var result = await _getPosts.Run(request, "");
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Invalid Query Parameter: `user_id` not passed", badRequestResult.Value);
+            Assert.Equal("Invalid Path Parameter: `user_id` not passed", badRequestResult.Value);
         }
 
         [Fact]

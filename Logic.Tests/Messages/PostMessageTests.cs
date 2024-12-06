@@ -10,13 +10,17 @@ namespace GoRideShare.Tests
     {
         private readonly Mock<ILogger<PostMessage>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
+        private readonly Mock<IAzureTableService> _azureTableService;
+        private readonly Utilities _utilities;        
         private readonly PostMessage _postMessage;
 
         public PostMessageTests()
         {
             _loggerMock = new Mock<ILogger<PostMessage>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _postMessage = new PostMessage(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _azureTableService = new Mock<IAzureTableService>();
+            _utilities = new Utilities(_azureTableService.Object);            
+            _postMessage = new PostMessage(_loggerMock.Object, _httpRequestHandlerMock.Object, _utilities);
         }
 
         [Fact]
@@ -77,7 +81,7 @@ namespace GoRideShare.Tests
             var result = await _postMessage.Run(request);
 
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("contents cannot be empty", objectResult.Value.ToString());
+            Assert.Contains("contents cannot be empty", objectResult.Value?.ToString());
         }
 
         [Fact]
@@ -95,7 +99,7 @@ namespace GoRideShare.Tests
             var result = await _postMessage.Run(request);
 
             var objectResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Contains("conversationId is invalid", objectResult.Value.ToString());
+            Assert.Contains("conversationId is invalid", objectResult.Value?.ToString());
         }
 
         [Fact]
@@ -144,7 +148,7 @@ namespace GoRideShare.Tests
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value.ToString());
+            Assert.Contains("Message Failed: Error connecting to DB layer", objectResult.Value?.ToString());
         }
     }
 }

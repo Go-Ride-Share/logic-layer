@@ -15,13 +15,17 @@ namespace GoRideShare.Tests
     {
         private readonly Mock<ILogger<EditUser>> _loggerMock;
         private readonly Mock<IHttpRequestHandler> _httpRequestHandlerMock;
+        private readonly Mock<IAzureTableService> _azureTableService;
+        private readonly Utilities _utilities;
         private readonly EditUser _editUser;
 
         public EditUserTests()
         {
             _loggerMock = new Mock<ILogger<EditUser>>();
             _httpRequestHandlerMock = new Mock<IHttpRequestHandler>();
-            _editUser = new EditUser(_loggerMock.Object, _httpRequestHandlerMock.Object);
+            _azureTableService = new Mock<IAzureTableService>();
+            _utilities = new Utilities(_azureTableService.Object);
+            _editUser = new EditUser(_loggerMock.Object, _httpRequestHandlerMock.Object, _utilities);
         }
 
         [Fact]
@@ -134,7 +138,7 @@ namespace GoRideShare.Tests
 
             var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.Equal("Error connecting to the DB layer.", objectResult.Value.ToString());
+            Assert.Equal("Error connecting to the DB layer.", objectResult.Value?.ToString());
         }
 
     }

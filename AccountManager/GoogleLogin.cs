@@ -98,6 +98,9 @@ namespace GoRideShare
                                                             Environment.GetEnvironmentVariable("OAUTH_SCOPE"));
                 string logicToken = await logicTokenHandler.GenerateTokenAsync();
     
+
+                await SecurityGuard.SaveUserTokens(googleLoginResponse.UserId, logicToken, dbToken);
+
                 // Succeful return
                 return new OkObjectResult(new {
                     User_id = googleLoginResponse.UserId,

@@ -1,18 +1,25 @@
-using System.Configuration;
-using System.Text.Json.Serialization;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoRideShare
 {
-    public static class Utilities
+    public class Utilities
     {
-        // Method that validates headers, outputs the userID and db_token, returns exception if headers  missing, null if headers are good
-        public static IActionResult ValidateHeaders(IHeaderDictionary headers, out string userId, out string db_token)
+
+        private readonly IAzureTableService _azureTableService;
+
+        public Utilities(IAzureTableService azureTableService)
         {
+            _azureTableService = azureTableService;
+        }
+
+        // Method that validates headers, outputs the userID and dbToken, and verifies that the tokens are matching 
+        // returns exception if headers missing or tokens mismatch, null if all is good
+        public IActionResult? ValidateHeadersAndTokens(IHeaderDictionary headers, out string userId, out string dbToken)
+        {
+            // Verify headers
             userId = string.Empty;
-            db_token = string.Empty;
+            dbToken = string.Empty;
 
             // Check for X-User-ID  and X-db_token headers
             if (!headers.TryGetValue("X-User-ID", out var userIdValue))
@@ -25,9 +32,20 @@ namespace GoRideShare
             {
                 return new BadRequestObjectResult("Missing the following header: 'X-Db-Token'.");
             }
-            db_token = db_tokenValue.ToString();
+            dbToken = db_tokenValue.ToString();
+
+            // Authorization is guarteed to be a header, otherwise Azure would not let this be called
+            headers.TryGetValue("Authorization", out var logicTokenValue);
+            string logicToken = logicTokenValue.ToString().Replace("Bearer ", "");
+
+            // Verify tokens
+            var (invalid, errorMessage) = _azureTableService.VerifyUserTokens(logicToken, userId, dbToken);
+            if (invalid)
+            {
+                return new UnauthorizedObjectResult(errorMessage);
+            }
 
             return null; // All headers are valid
         }
     }
-}
+} 

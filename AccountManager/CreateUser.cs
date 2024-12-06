@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Azure.Data.Tables;
 
 namespace GoRideShare
 {
@@ -83,6 +84,8 @@ namespace GoRideShare
 
                     // Generate the OAuth 2.0 token for logic_layer
                     string logic_token = await jwtTokenHandler.GenerateTokenAsync();
+
+                    await SecurityGuard.SaveUserTokens(userId, logic_token, db_token);
 
                     // Return both OAuth 2.0 tokens, the user_id, and the photo to the client
                     return new OkObjectResult(new

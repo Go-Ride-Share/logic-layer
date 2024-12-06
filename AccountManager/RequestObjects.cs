@@ -14,19 +14,19 @@ namespace GoRideShare
     public class UserRegistrationInfo
     {
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [JsonPropertyName("password")]
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("bio")]
-        public string Bio { get; set; }
+        public string? Bio { get; set; }
 
         [JsonPropertyName("phone")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         [JsonPropertyName("photo")]
         public string? Photo { get; set; }
@@ -53,7 +53,7 @@ namespace GoRideShare
 
         [JsonRequired]
         [JsonPropertyName("posterId")]
-        public required Guid PosterId { get; set; }
+        public required string PosterId { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("name")]
@@ -216,9 +216,9 @@ namespace GoRideShare
             {
                 return (true, "OriginLat is Invalid");
             }
-            if (180 < OriginLng || OriginLng < -180)
+            if (90 < DestinationLat || DestinationLat < -90)
             {
-                return (true, "OriginLng is Invalid");
+                return (true, "DestinationLat is Invalid");
             }
             if (180 < DestinationLng || DestinationLng < -180)
             {
@@ -239,11 +239,11 @@ namespace GoRideShare
     public class User
     {
         [JsonPropertyName("userId")]
-        public Guid? UserId { get; set; }
+        public string? UserId { get; set; }
 
         [JsonRequired]
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("photo")]
         public string? Photo { get; set; }
@@ -252,7 +252,7 @@ namespace GoRideShare
 
         public User
         (
-            Guid userId,
+            string userId,
             string name,
             string? photo
         )
