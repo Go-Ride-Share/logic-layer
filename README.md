@@ -1,173 +1,385 @@
-## `AccountManager` Function App API Definition
 
-### /CreateUser
-Request paylaod template:
-```
+# Go Ride Share Logic Layer API
+
+## Overview
+The `Go Ride Share Logic Layer API` is an internal service for managing user accounts, posts, conversations, and messaging functionalities for the ride-sharing application. Below is a detailed explanation of each API endpoint, including request and response formats.
+
+---
+
+## Users
+
+### **POST /api/users**
+**Description:** Creates a new user.  
+**Request Payload:**
+```json
 {
-    email: string, ex "test@email.com",
-    password: string, ex "testPassword",
-    name: string, ex "testName",
-    bio: string, ex "testBio",
-    phone: string, ex "4312245323",
-    photo: string, ex "testPhotoUrl"
+  "email": "test@email.com",
+  "password": "testPassword",
+  "name": "testName",
+  "bio": "testBio",
+  "phone": "4312245323",
+  "photo": "photo_encoding"
+}
+```
+**Response Payload:**
+```json
+{
+  "user_id": "new_user_id",
+  "photo": "photo_encoding",
+  "db_token": "data-layer-access-token",
+  "logic_token": "logic-layer-access-token",
 }
 ```
 
-Response payload template:
-```
+### **GET /api/users/{user_id}**
+**Description:** Retrieves a user's profile.  
+**Path Parameter:**
+- `user_id` (string): ID of the user to retrieve.
+
+**Response Payload:**
+```json
 {
-    user_id: string, ex "new_user_id",
-    logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
-    db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
-    photo: string, ex "photo_encoding"
+  "email": "test@email.com",
+  "name": "testName",
+  "bio": "testBio",
+  "phone": "4312245323",
+  "photo": "photo_encoding"
 }
 ```
 
-### /VerifyLoginCredentials
-Request paylaod template:
-```
+### **PATCH /api/users/{user_id}**
+**Description:** Edits an existing user's details.  
+**Path Parameter:**
+- `user_id` (string): ID of the user to edit.
+
+**Request Payload:**
+```json
 {
-    email: string, ex "test@email.com",
-    password: string, ex "testPassword"
+  "name": "new_name",
+  "bio": "new_bio",
+  "phone": "new_phone_number",
+  "photo": "new_photo_encoding"
+}
+```
+**Response Payload:**
+```json
+{
+  "user_id": "user_id",
+  "photo": "string"
 }
 ```
 
-Response payload template:
-```
+### **POST /api/users/passwordlogin**
+**Description:** Authenticates a user using email and password.  
+**Request Payload:**
+```json
 {
-    user_id: string, ex "new_user_id",
-    logic_token: string, ex "oauth-token-generated-by-microsoft-for-logic-access",
-    db_token: string, ex "oauth-token-generated-by-microsoft-for-db-access",
-    photo: string, ex "photo_encoding"
+  "email": "test@email.com",
+  "password": "testPassword"
+}
+```
+**Response Payload:**
+```json
+{
+  "user_id": "user_id",
+  "photo": "photo_encoding",
+  "db_token": "data-layer-access-token",
+  "logic_token": "logic-layer-access-token"
 }
 ```
 
-## `Logic` Function App API Definition
-
-### /GetUser
-Request Header template:
-```
+### **POST /api/users/googlelogin**
+**Description:** Authenticates a user using Google login.  
+**Request Payload:**
+```json
 {
-    X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_id_to_get_user"
+  "email": "google_user@gmail.com",
+  "password": "password"
+}
+```
+**Response Payload:**
+```json
+{
+  "user_id": "user_id",
+  "photo": "photo_encoding",
+  "db_token": "data-layer-access-token",
+  "logic_token": "logic-layer-access-token",
 }
 ```
 
-Response payload template:
-```
+---
+
+## Posts
+
+### **POST /api/posts**
+**Description:** Creates a new post.  
+
+**Request Payload:**
+```json
 {
-    email: string, ex "test@email.com",
-    name: string, ex "testName",
-    bio: string, ex "testBio",
-    phone: string, ex "4312245323",
-    photo: string, ex "photo_encoding"
+  "name": "Tets Post",
+  "description": "Description",
+  "departureDate": "2024-12-06T02:40:06Z",
+  "originName": "OName",
+  "originLat": 40.712776,
+  "originLng": -74.005974,
+  "destinationName": "DName",
+  "destinationLat": 34.052235,
+  "destinationLng": -118.24368,
+  "price": 30.0,
+  "seatsAvailable": 2
+}
+```
+**Response Payload:**
+```json
+{
+  "post_id": "new_post_id"
 }
 ```
 
-### /EditUser
-Request Header template:
-```
-{
-    X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_id_to_get_user"
-}
-```
+### **GET /api/posts**
+**Description:** Retrieves all posts.
 
-Request paylaod template:
-```
-{
-    // Note - pass null for the fields you don't wanna edit
-    email: string, ex "test@email.com" or null,
-    name: string, ex "testName" or null,
-    bio: string, ex "testBio" or null,
-    phone: string, ex "4312245323" or null,
-    photo: string, ex "photo_encoding" or null
-}
-```
-
-### /SavePost
-Request Header template:
-```
-{
-    X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_id_to_get_user"
-}
-```
-
-Request paylaod template:
-```
-{
-    "name": "namename",
-    "postId": "post_guid" (null for new posts, and existing guid to update posts)
-    "posterId": "user_id",
-    "description": "This is a dummy ride-share post.",
-    "departureDate": "2024-10-09",
+**Response Payload:**
+```json
+[
+  {
+    "post_id": "post_id",
+    "posterId": "poster_id",
+    "name": "Test post 1",
+    "description": "Description",
+    "departureDate": "2024-12-06T02:40:06Z",
+    "originName": "OName",
     "originLat": 40.712776,
     "originLng": -74.005974,
+    "destinationName": "DName",
     "destinationLat": 34.052235,
     "destinationLng": -118.24368,
-    "price": 25.00,
-    "seatsAvailable": 2
-}
-```
-
-Response payload template:
-```
-{
-    postId: string, ex "new_post_guid",
-}
-```
-
-### /GetPost
-Request Header template:
-```
-{
-    X-Db-Token: string, ex "oauth-token-for-db-access",
-    X-User-ID: string, ex "user_id_to_get_user"
-}
-```
-
-Request Query parameter template:
-```
-/GetPost?userId={user_id}
-```
-
-Response paylaod template:
-```
-{
-    "name": "namename",
-    "posterId": "user_id",
-    "description": "This is a dummy ride-share post.",
-    "departureDate": "2024-10-09",
+    "price": 30.0,
+    "seatsAvailable": 2,
+    "createdAt": "2024-12-03T02:40:06Z",
+    "user": {
+        "userId": "user_id",
+        "name": "name",
+        "photo": "photo_encoding"
+    }
+  },
+  {
+    "post_id": "post_id",
+    "posterId": "poster_id",
+    "name": "Test post 2",
+    "description": "Description",
+    "departureDate": "2024-12-09T02:40:06Z",
+    "originName": "OName",
     "originLat": 40.712776,
     "originLng": -74.005974,
+    "destinationName": "DName",
     "destinationLat": 34.052235,
     "destinationLng": -118.24368,
-    "price": 25.00,
-    "seatsAvailable": 2
-}
+    "price": 30.0,
+    "seatsAvailable": 2,
+    "createdAt": "2024-12-03T02:40:06Z",
+    "user": {
+        "userId": "user_id",
+        "name": "name",
+        "photo": "photo_encoding"
+    }
+  }
+]
 ```
-### /FindRides/Intercity
-Request paylaod template:
-```
+### **GET /api/posts?postId={post_id}**
+**Description:** Retrieves a single post.  
+**Query Parameters:**
+- `postId` (string): Post ID to get the single post from the DB.
+
+**Response Payload:**
+```json
 {
-    origin: string, ex "Winnipeg, MB, Canada"
-    destination: string, ex "Winnipeg, MB, Canada"
-    date: date, the date trip is leaving
-    seatsNeeded: 1,
+  "post_id": "post_id",
+  "posterId": "poster_id",
+  "name": "Test post 1",
+  "description": "Description",
+  "departureDate": "2024-12-06T02:40:06Z",
+  "originName": "OName",
+  "originLat": 40.712776,
+  "originLng": -74.005974,
+  "destinationName": "DName",
+  "destinationLat": 34.052235,
+  "destinationLng": -118.24368,
+  "price": 30.0,
+  "seatsAvailable": 2,
+  "createdAt": "2024-12-03T02:40:06Z",
+  "user": {
+      "userId": "user_id",
+      "name": "name",
+      "photo": "photo_encoding"
+  }
 }
 ```
 
-### /FindRides/Intracity
-Request payload template:
+### **GET /api/posts/{user_id}**
+**Description:** Retrieves all posts made by a specific user.  
+**Path Parameter:**
+- `user_id` (string): User ID of the poster.
+
+**Response Payload:**
+```json
+[
+  {
+    "post_id": "post_id",
+    "posterId": "poster_id",
+    "name": "Test post 1",
+    "description": "Description",
+    "departureDate": "2024-12-06T02:40:06Z",
+    "originName": "OName",
+    "originLat": 40.712776,
+    "originLng": -74.005974,
+    "destinationName": "DName",
+    "destinationLat": 34.052235,
+    "destinationLng": -118.24368,
+    "price": 30.0,
+    "seatsAvailable": 2,
+    "createdAt": "2024-12-03T02:40:06Z"
+  },
+  {
+    "post_id": "post_id",
+    "posterId": "poster_id",
+    "name": "Test post 2",
+    "description": "Description",
+    "departureDate": "2024-12-09T02:40:06Z",
+    "originName": "OName",
+    "originLat": 40.712776,
+    "originLng": -74.005974,
+    "destinationName": "DName",
+    "destinationLat": 34.052235,
+    "destinationLng": -118.24368,
+    "price": 30.0,
+    "seatsAvailable": 2,
+    "createdAt": "2024-12-03T02:40:06Z"
+  }
+]
 ```
+
+---
+
+## Conversations
+
+### **POST /api/conversations**
+**Description:** Starts a new conversation between two users.  
+**Request Payload:**
+```json
 {
-    city: string, ex "Winnipeg, MB, Canada"
-    destination: float, coordinates of where the passnager wants to go
-    maxWalkingMinutes: int, how many minutes the passanger is willing to walk to get to their final destination
-    departureMinDateTime: DateTime, this is the earliest the passanger is willing to depart
-    departureMaxDateTime: DateTime, this is the latest the passanger is willing to depart
-    date: string, the date trip is leaving
-    seatsNeeded: 1,
+  "recipientId": "recipient_user_id",
+  "contents": "Hello",
+  "timeStamp": "2024-12-06T12:00:00Z"
 }
 ```
+**Response Payload:**
+```json
+{
+  "conversation_id": "conversation_id",
+  "user": {
+    "userId": "recipient_user_id",
+    "name": "Someone",
+    "photo": "photo_encoding"
+  },
+  "messages": [
+    {
+      "userId": "sender_user_id",
+      "contents": "Hello",
+      "timeStamp": "2024-12-06T12:00:00Z"
+    }
+  ]
+}
+```
+
+### **GET /api/conversations**
+**Description:** Retrieves all conversations for a user.  
+
+**Response Payload:**
+```json
+[
+  {
+    "conversation_id": "conversation_id_1",
+    "user": {
+      "userId": "recipient_user_id",
+      "name": "Name 1",
+      "photo": "photo_encoding"
+    },
+    "messages": [
+      {
+        "userId": "sender_user_id",
+        "contents": "Hello",
+        "timeStamp": "2024-12-06T12:00:00Z"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conversation_id_2",
+    "user": {
+      "userId": "recipient_user_id",
+      "name": "Name 2",
+      "photo": "photo_encoding"
+    },
+    "messages": [
+      {
+        "userId": "sender_user_id",
+        "contents": "Hello",
+        "timeStamp": "2024-12-06T12:00:00Z"
+      }
+    ]
+  }
+]
+```
+
+---
+
+## Messages
+
+### **POST /api/messages**
+**Description:** Sends a message in an existing conversation.  
+
+**Request Payload:**
+```json
+{
+  "conversationId": "conversation_id",
+  "contents": "Is this ride still available?",
+  "timeStamp": "2024-12-06T12:05:00Z"
+}
+```
+**Response Payload:**
+```json
+{
+  "id": "conversation_id"
+}
+```
+
+### **GET /api/messages/{conversationId}**
+**Description:** Retrieves messages from a specific conversation.  
+**Path Parameter:**
+- `conversationId` (string): ID of the conversation.
+
+**Query Parameters:**
+- `limit` (integer): Maximum number of messages to retrieve (default: 50).
+- `timeStamp` (string): Start time for retrieving messages.
+
+**Response Payload:**
+```json
+[
+    {
+      "conversationId": "sender_user_id",
+      "contents": "Hello",
+      "timeStamp": "2024-12-06T12:00:00Z"
+    },
+    {
+      "conversationId": "sender_user_id",
+      "contents": "Hey",
+      "timeStamp": "2024-12-07T12:00:00Z"
+    }
+]
+```
+
+---
+
+## Notes
+- All date and time formats should follow ISO 8601.
