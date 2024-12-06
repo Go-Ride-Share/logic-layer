@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Moq;
-using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace GoRideShare
 {
@@ -42,7 +39,7 @@ namespace GoRideShare
                 _logger.LogInformation($"user_id: {user_id}");
             }
 
-            string endpoint = $"{_baseApiUrl}/api/users/{userId}";
+            string endpoint = $"{_baseApiUrl}/api/users/{Uri.EscapeDataString(userId)}";
             _logger.LogInformation($"Endpoint: {endpoint}");
             var (error, response) = await _httpRequestHandler.MakeHttpGetRequest(endpoint, db_token, user_id);
 
